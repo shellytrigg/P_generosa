@@ -11,6 +11,8 @@ library("plyr")
 
 
 xmlfile <- xmlParse("http://192.168.1.101:80/cgi-bin/datalog.xml?sdate=181026&days=14") #read in the date plus x days of Apex data
+xmlfile <- xmlParse("http://192.168.0.1:80/cgi-bin/datalog.xml?sdate=181107&days=2") #read in the date plus x days of Apex data
+
 Apex.Data <- ldply(xmlToList(xmlfile), data.frame) #convert xml to dataframe
 
 Apex.Data <- read.csv("~/Documents/GitHub/P_generosa/Water_Chemistry/Apex_data_20181026-20181107.csv", stringsAsFactors = FALSE)
