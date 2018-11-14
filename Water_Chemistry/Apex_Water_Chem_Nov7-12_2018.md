@@ -53,7 +53,7 @@ Apex.Data.val <- gather(Apex.Data.val, value2, value ,-1)
 #recombine probe and value data frames
 Apex.Data <- cbind(Apex.Data.probe[,-2], Apex.Data.val[,3])
 #extract only pH and temperature data
-Apex.Data <- Apex.Data[grep("pH|Tmp", Apex.Data$value),]
+Apex.Data <- Apex.Data[grep("pH|Tmp|Salt|ORP", Apex.Data$value),]
 #convert date/time from character to POSIX so R will read it as a date
 Apex.Data$date <- as.POSIXct(strptime(Apex.Data$date, "%m/%d/%Y %H:%M:%S"))
 #simplify column names
@@ -64,10 +64,20 @@ Apex.Data$probe <- gsub("x6", "_2", Apex.Data$probe)
 Apex.Data$probe <- gsub("-","_", Apex.Data$probe)
 ```
 
-Apex pH probe time series data after re-calibrating all probes from Nov 7, 2018 1pm to Nov 12, 2018 12pm. Probes 1 and 2 were set at pH 7.00, and probes 3 and 4 are ambient. ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-4-1.png)
+Apex pH probe time series data after re-calibrating all pH probes from Nov 7, 2018 1pm to Nov 12, 2018 12pm. Tanks 1 and 2 were set at pH 7.00, and tanks 3 and 4 are ambient. ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
-Boxplots of Apex pH probe data after re-calibrating all probes from Nov 7, 2018 1pm to Nov 12, 2018 12pm. Probes 1 and 2 were set at pH 7.00, and probes 3 and 4 are ambient. ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-5-1.png)
+Constant low pH probe data ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
-Apex temperature probe time series data after re-calibrating all probes from Nov 7, 2018 1pm to Nov 12, 2018 12pm. ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-6-1.png)
+Ambient pH probe data ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
-Boxplots of Apex temperature probe data after re-calibrating all probes from Nov 7, 2018 1pm to Nov 12, 2018 12pm. ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-7-1.png)
+Boxplots of Apex pH probe data after re-calibrating all pH probes from Nov 7, 2018 1pm to Nov 12, 2018 12pm. Tanks 1 and 2 were set at pH 7.00, and tanks 3 and 4 are ambient. ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-7-1.png)
+
+Apex temperature probe time series data after re-calibrating all pH probes from Nov 7, 2018 1pm to Nov 12, 2018 12pm. ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-8-1.png)
+
+Boxplots of Apex temperature probe data after re-calibrating all pH probes from Nov 7, 2018 1pm to Nov 12, 2018 12pm. ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-9-1.png)
+
+![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+Time series O2 data ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-11-1.png)
+
+Time series salt data ![](Apex_Water_Chem_Nov7-12_2018_files/figure-markdown_github/unnamed-chunk-12-1.png)
