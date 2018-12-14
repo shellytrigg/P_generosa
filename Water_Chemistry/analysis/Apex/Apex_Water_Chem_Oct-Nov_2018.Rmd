@@ -66,3 +66,8 @@ Apex temperature data from Oct 26 (start day) - Nov 7 2018
 ```{r, echo = FALSE}
 ggplot(Apex.Data[grep("Tmp", Apex.Data$probe),], aes(x= date, y= value)) + geom_point() + scale_x_datetime("date", date_breaks = "day", date_labels = "%b %d", expand = c(0,0), minor_breaks = NULL) + xlab("Date") + ylab("Temp (Celcius)")  + facet_wrap(~probe, scale = "free") + theme(axis.text.x=element_text(angle = 90, hjust = 0))
 ```
+plotting pH drift when solenoid is off
+```{r, echo = FALSE}
+Apex.Data$day <- format(Apex.Data$date, "%b %d")
+ggplot(Apex.Data[which(Apex.Data$day == "Oct 30" & substr(Apex.Data$probe,0,3) == "pH_"),], aes(x= date, y= value, color = probe)) + geom_point() + xlab("Date") + ylab("pH")  + facet_wrap(~day, scale = "free") + theme(axis.text.x=element_text(angle = 90, hjust = 0)) + scale_x_datetime("date", date_breaks = "hour", date_labels = "%H", expand = c(0,0), minor_breaks = NULL)
+```

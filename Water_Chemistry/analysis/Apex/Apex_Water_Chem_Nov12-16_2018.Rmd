@@ -15,18 +15,18 @@ library("ggplot2")
 
 ```{r, eval = FALSE}
 #read in the date plus x days of Apex data
-xmlfile <- xmlParse("http://192.168.1.101:80/cgi-bin/datalog.xml?sdate=181107&days=6") 
+xmlfile <- xmlParse("http://192.168.1.101:80/cgi-bin/datalog.xml?sdate=181112&days=6") #*** THIS WAS THE WRONG APEX DATA
 
 #convert xml to dataframe
 Apex.Data <- ldply(xmlToList(xmlfile), data.frame)
 
 #output the Apex data to a csv file; this is to make a copy of the raw data
-write.csv(Apex.Data, "~/Documents/GitHub/P_generosa/Water_Chemistry/Apex_data_20181107-20181112.csv", quote =FALSE, row.names = FALSE)
+write.csv(Apex.Data, "~/Documents/GitHub/P_generosa/Water_Chemistry/data/Apex/Apex_data_20181112-20181116.csv", quote =FALSE, row.names = FALSE)
 ```
 
 ```{r}
 #read in the csv file
-Apex.Data <- read.csv("~/Documents/GitHub/P_generosa/Water_Chemistry/Apex_data_20181107-20181112.csv", stringsAsFactors = FALSE)
+Apex.Data <- read.csv("~/Documents/GitHub/P_generosa/Water_Chemistry/data/Apex/Apex_data_20181112-20181116.csv", stringsAsFactors = FALSE)
 
 #remove uninformative rows and columns
 Apex.Data <- Apex.Data[-c(1:3),-c(1:2,grep("type", colnames(Apex.Data)))]
@@ -110,3 +110,4 @@ ggplot(Apex.Data[which(Apex.Data$date > strptime("11/07/2018 13:00:00", format =
    &  substr(Apex.Data$probe,0,4)=="Salt"),], aes(x= date, y= value)) + geom_point() +
   scale_x_datetime("date", date_breaks = "day", date_labels = "%b %d", expand = c(0,0), minor_breaks = NULL) + xlab("Date") + ylab("Salinity (PSU?)")  + theme(axis.text.x=element_text(angle = 90, hjust = 0))
 ```
+

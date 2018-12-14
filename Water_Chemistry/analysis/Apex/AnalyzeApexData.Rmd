@@ -1,0 +1,58 @@
+---
+title: "AnalyzeApexData"
+author: "Shelly Trigg"
+date: "12/14/2018"
+output: output:  rmarkdown::github_document:
+          html_preview: false
+---
+load libraries
+```{r}
+library(plyr)
+library("tidyr")
+library("ggplot2")
+```
+
+Read in Apex data
+```{r}
+#define data path variable with the path where the Apex data lives
+data_path <- "~/Documents/GitHub/P_generosa/Water_Chemistry/data/Apex"
+#create a list of the Apex data files that includes their full paths
+filenames <- as.list(dir(data_path, pattern = ".csv", full.names = TRUE))
+#create an empty dataframe to which each Apex data file will be appended
+Apex.cum.data <- data.frame()
+#read each file in
+for (i in 1:length(filenames)){
+  Apex.data <- read.csv(filenames[[i]], stringsAsFactors = FALSE)
+  Apex.cum.data <- rbind.fill(Apex.cum.data,Apex.data)
+}
+```
+
+Clean data up 
+```{r}
+#exclude rows where data is NA and first 2 uninformative columns 
+Apex.cum.data <- Apex.cum.data[which(!is.na(Apex.cum.data$date)),-c(1:2,grep("type", colnames(Apex.cum.data)))]
+#probe name and data are listed in pairwise columns. The following code reorganizes the table to have 
+#one column with the date/time, one column with probe name, and one colum with probe value.
+#I did this by splitting the data into two data frames and then recombining them. There is probably a better way to do this.
+#make a data frame of just probe names
+Apex.Data.probe <- Apex.cum.data[,c(1,grep("name", colnames(Apex.cum.data)))]
+#make a data frame of just probe values
+Apex.Data.val <- Apex.cum.data[,c(1,grep("value", colnames(Apex.cum.data)))]
+#reshabe data frames into long format
+Apex.Data.probe <- gather(Apex.Data.probe, probe_name, value ,-1)
+Apex.Data.val <- gather(Apex.Data.val, value2, value ,-1)
+#recombine probe and value data frames
+Apex.cum.data <- cbind(Apex.Data.probe[,-2], Apex.Data.val[,3])
+#simplify column names
+colnames(Apex.cum.data) <- c("date", "probe", "value")
+#extract only pH, temperature, salinity, and Oxygen data
+Apex.cum.data <- Apex.cum.data[grep("pH|Tmp|Salt|ORP", Apex.cum.data$probe),]
+#convert date/time from character to POSIX so R will read it as a date
+Apex.cum.data$date <- as.POSIXct(strptime(Apex.cum.data$date, "%m/%d/%Y %H:%M:%S"))
+#remove duplicate rows from overlapping Apex.data
+Apex.cum.data <- unique(Apex.cum.data)
+#Probe 'Tmpx6' and 'pHx6' were renamed to 'Tmp-2' and 'pH-2' so rename them in the data to reflect that
+Apex.Data$probe <- gsub("x6", "_2", Apex.Data$probe)
+#replace the hyphen in 'Tmp-2' and 'pH-2' with an underscore
+Apex.Data$probe <- gsub("-","_", Apex.Data$probe)
+```
