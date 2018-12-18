@@ -1,0 +1,95 @@
+---
+title: "TitratorAnalysis"
+author: "Shelly Trigg"
+date: "12/18/2018"
+output: rmarkdown::github_document
+---
+
+
+```{r}
+
+setwd("~/Documents/GitHub/P_generosa/Water_Chemistry/analysis/titrator/")
+
+cumu.data <- read.csv("~/Documents/GitHub/P_generosa/Water_Chemistry/data/Titrator/Cumu_TA_Output.csv")
+cumu.data$date <- as.POSIXct(substr(cumu.data$Sample.ID,0,8), format = "%Y%m%d")
+
+fall.data <- cumu.data[which(cumu.data$date > as.POSIXct("2018-11-06", format = "%Y-%m-%d" )),]
+fall.data$treatment <- "treatment"
+for(i in 1:length(fall.data$treatment)){
+  if(grepl("CRM",fall.data$sample.name[i])){
+    fall.data$treatment[i] <- "STD"
+  }
+  if(grepl("JUNK", fall.data$sample.name[i], ignore.case = TRUE)){
+    fall.data$treatment[i] <- "JUNK"
+  }
+  if(grepl("^3|^4", fall.data$sample.name[i])){
+    fall.data$treatment[i] <- "ambient"
+  }
+  if(grepl("^1|^2", fall.data$sample.name[i])){
+    fall.data$treatment[i] <- "low"
+  }
+
+}                              
+
+#add column for tank
+fall.data$tank <- substr(fall.data$sample.name,0,1)
+```
+
+TA over time for ambient and low treatments
+```{r, echo=FALSE}
+###AMB VS. LOW
+library(ggplot2)
+#line plot TA over time for amb and low on the same plot
+ggplot(fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "ambient"| fall.data$treatment == "low"),], aes(date, TA)) + geom_line(aes(color = sample.name)) + scale_x_datetime("date", date_breaks = "day", date_labels = "%b %d", expand = c(0,0), minor_breaks = NULL) + theme(axis.text.x=element_text(angle = 90, hjust = 0)) + geom_point(aes(color = sample.name))
+```
+
+Boxplots of all TA measurements (Nov 7-Nov 28) for ambient and low **WATER SAMPLES**
+```{r, echo=FALSE}
+#boxplot TA x sample name
+ggplot(fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "ambient"| fall.data$treatment == "low"),], aes(sample.name, TA)) + geom_boxplot(aes(fill =sample.name))
+```
+
+Boxplots of all TA measurements (Nov 7-Nov 28) for ambient and low **TANKS**
+```{r, echo=FALSE}
+#boxplot TA x tank
+ggplot(fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "ambient"| fall.data$treatment == "low"),], aes(tank, TA)) + geom_boxplot(aes(fill =tank))
+```
+
+Is there a significant different between **TANKS** based on TA?
+```{r}
+#test to see if treatments are sig. diff
+summary(aov(TA ~ tank, data = fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "ambient"| fall.data$treatment == "low"),]))
+
+TukeyHSD(aov(TA ~ tank, data = fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "ambient"| fall.data$treatment == "low"),]))
+```
+At an adj. p <= 0.05, there is **NOT** a significant difference between any other of the tanks, **BUT** there is more difference between DIFFERENT treatment tanks (1-3,1-4,2-3,2-4) than there is between SAME treatment tanks (1-2 and 3-4)
+
+
+Boxplots of all TA measurements (Nov 7-Nov 28) for ambient and low TREATMENTS
+```{r, echo=FALSE}
+#boxplot TA x tank
+ggplot(fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "ambient"| fall.data$treatment == "low"),], aes(treatment, TA)) + geom_boxplot(aes(fill = treatment))
+```
+
+Is there a significant different between TREATMENTS based on TA?
+```{r}
+#test to see if treatments are sig. diff
+t.test(x= fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "ambient"),"TA"], y =  fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "low"),"TA"])
+```
+At p <= 0.05, there **IS** a significant difference between TREATMENTS
+
+
+
+Line plot of TA over time for CRMs
+```{r, echo=FALSE}
+###CRMs
+#line plot TA over time for CRMs on the same plot
+ggplot(fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "STD"),], aes(date, TA)) + geom_line(aes(color = sample.name)) + scale_x_datetime("date", date_breaks = "day", date_labels = "%b %d", expand = c(0,0), minor_breaks = NULL) + theme(axis.text.x=element_text(angle = 90, hjust = 0)) + geom_point(aes(color = sample.name))
+```
+
+boxplot of TA for CRMs from Nov 16-Dec 5
+```{r, echo=FALSE}
+#boxplot of TA for CRMs from Nov 16 on
+ggplot(fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "STD" & fall.data$date > as.POSIXct(strptime("2018-11-15", format = "%Y-%m-%d"))),], aes(date, TA)) + geom_boxplot(aes(fill = sample.name))
+```
+

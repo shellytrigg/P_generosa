@@ -15,7 +15,7 @@
 rm(list=ls())
 
 #set working directory---------------------------------------------------------------------------------------------
-setwd("~/Documents/GitHub/P_generosa/Water_Chemistry/")
+setwd("~/Documents/GitHub/P_generosa/Water_Chemistry/data/Titrator/")
 main<-getwd()
 
 #load libraries----------------------------------------------
@@ -27,18 +27,18 @@ library(tidyverse)
 date<-'20181128'
 
 
-path<-paste("Data/",date, sep = "") #the location of all your titration files
-massfile<-paste(date,"mass_CRM.csv", sep ="") # name of your file with masses
-titrationfile<-paste(date,"_CRM.csv",sep = "") # name of the last titration file run
+#path<-paste("Data/",date, sep = "") #the location of all your titration files
+massfile<-paste(date,"mass_run1.csv", sep ="") # name of your file with masses
+titrationfile<-paste(date,"_run1.csv",sep = "") # name of the last titration file run
 
 
 #DO NOT CHANGE ANYTHING BELOW THIS LINE UNLESS A NEW BOTTLE OF ACID IS USED
 #load Data---------------------------------------------------
 #load Mass Data
-Mass<-read.csv(file.path(path,massfile), header=T, sep=",", na.string="NA", as.is=T) 
+Mass<-read.csv(file.path(main,date,massfile), header=T, sep=",", na.string="NA", as.is=T) 
 
 #### pH Calibration #####
-pHCal<-read.csv('Data/pHCalibration.csv') # read in the pH Calibration file
+pHCal<-read.csv(paste(main,'pHCalibration.csv', sep = "/")) # read in the pH Calibration file
 
 #select the calibration for the correct date
 pHData<-pHCal[pHCal$Date==date,]
@@ -67,7 +67,7 @@ colnames(TA)<-c("Sample.ID",'TA','Mass', 'Type')
 
 #run a for loop to bring in the titration files one at a time and calculate TA
 # read in the mega concatenated titration results file
-filename<-file.path(path,titrationfile)
+filename<-file.path(date,titrationfile)
 AllData<-read.csv(filename, sep=",", na.string="NA",as.is=T, skip=12)[ ,1:5] 
 #AllData <- AllData[-1,]
 # Identifies rows starting with zero seconds "0" in column 2
@@ -135,10 +135,51 @@ for(i in 1:nrows) {
 }
 TA[,2:3]<-sapply(TA[,2:3], as.numeric) # make sure the appropriate columns are numeric
 #exports your data as a CSV file
-write.table(TA,paste0(path,"/","TA_Output_",titrationfile),sep=",", row.names=FALSE)
+write.table(TA,paste0(date,"/","TA_Output_",titrationfile),sep=",", row.names=FALSE)
+
+
+
 
 #Cumulative TA
-cumu.data <- read.csv("Data/Cumulative_TA_Output.csv", header=TRUE, sep=",")
-update.data <- rbind(cumu.data, TA)
 
-write.table(update.data,"Data/Cumulative_TA_Output.csv",sep=",", row.names=FALSE)
+cumu.data <- read.csv(paste(main,"/Cumulative_TA_Output.csv", sep =""), header=TRUE, sep=",")
+
+folderlist <- list.dirs(path = main)
+TA.files <- dir(folderlist, pattern = "TA_Output_", full.names = TRUE )
+update.data <- data.frame()
+for(i in 1:length(TA.files)){
+ TA.file <- read.csv(TA.files[i], stringsAsFactors=FALSE)
+ update.data <- rbind(update.data, TA.file[,1:3])
+}
+
+cumu.data <- rbind(cumu.data,update.data)
+cumu.data$date <- as.POSIXct(substr(cumu.data$Sample.ID,0,8), format = "%Y%m%d")
+cumu.data$sample.name <- substr(cumu.data$Sample.ID,10,length(cumu.data$Sample.ID))
+#write.table(update.data,paste(main,"/Cumulative_TA_Output.csv", sep = ""),sep=",", row.names=FALSE)
+
+fall.data <- cumu.data[which(cumu.data$date > as.Date("2018-11-06")),]
+fall.data$treatment <- "treatment"
+for(i in 1:length(fall.data$treatment)){
+  if(grepl("CRM",fall.data$sample.name[i])){
+    fall.data$treatment[i] <- "STD"
+  }
+  if(grepl("JUNK", fall.data$sample.name[i], ignore.case = TRUE)){
+    fall.data$treatment[i] <- "JUNK"
+  }
+  if(grepl("^3|^4", fall.data$sample.name[i])){
+    fall.data$treatment[i] <- "ambient"
+  }
+  if(grepl("^1|^2", fall.data$sample.name[i])){
+    fall.data$treatment[i] <- "low"
+  }
+
+}                              
+             
+#plot TA over time for amb and low on the same plot
+ggplot(fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "ambient"| fall.data$treatment == "low"),], aes(date, TA)) + geom_line(aes(color = sample.name)) + scale_x_datetime("date", date_breaks = "day", date_labels = "%b %d", expand = c(0,0), minor_breaks = NULL) + theme(axis.text.x=element_text(angle = 90, hjust = 0)) + geom_point(aes(color = sample.name))
+
+
+
+#plot TA over time facetted by sample name
+ggplot(fall.data, aes(date, TA)) + geom_line(aes(color = sample.name)) + facet_wrap(~treatment, scale = "free")
+                 
