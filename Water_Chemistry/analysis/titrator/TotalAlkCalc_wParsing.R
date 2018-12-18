@@ -153,33 +153,6 @@ for(i in 1:length(TA.files)){
 }
 
 cumu.data <- rbind(cumu.data,update.data)
-cumu.data$date <- as.POSIXct(substr(cumu.data$Sample.ID,0,8), format = "%Y%m%d")
 cumu.data$sample.name <- substr(cumu.data$Sample.ID,10,length(cumu.data$Sample.ID))
-#write.table(update.data,paste(main,"/Cumulative_TA_Output.csv", sep = ""),sep=",", row.names=FALSE)
+write.table(cumu.data,paste(main,"/Cumu_TA_Output.csv", sep = ""),sep=",", row.names=FALSE)
 
-fall.data <- cumu.data[which(cumu.data$date > as.Date("2018-11-06")),]
-fall.data$treatment <- "treatment"
-for(i in 1:length(fall.data$treatment)){
-  if(grepl("CRM",fall.data$sample.name[i])){
-    fall.data$treatment[i] <- "STD"
-  }
-  if(grepl("JUNK", fall.data$sample.name[i], ignore.case = TRUE)){
-    fall.data$treatment[i] <- "JUNK"
-  }
-  if(grepl("^3|^4", fall.data$sample.name[i])){
-    fall.data$treatment[i] <- "ambient"
-  }
-  if(grepl("^1|^2", fall.data$sample.name[i])){
-    fall.data$treatment[i] <- "low"
-  }
-
-}                              
-             
-#plot TA over time for amb and low on the same plot
-ggplot(fall.data[which(fall.data$Mass > 59 & fall.data$treatment == "ambient"| fall.data$treatment == "low"),], aes(date, TA)) + geom_line(aes(color = sample.name)) + scale_x_datetime("date", date_breaks = "day", date_labels = "%b %d", expand = c(0,0), minor_breaks = NULL) + theme(axis.text.x=element_text(angle = 90, hjust = 0)) + geom_point(aes(color = sample.name))
-
-
-
-#plot TA over time facetted by sample name
-ggplot(fall.data, aes(date, TA)) + geom_line(aes(color = sample.name)) + facet_wrap(~treatment, scale = "free")
-                 
