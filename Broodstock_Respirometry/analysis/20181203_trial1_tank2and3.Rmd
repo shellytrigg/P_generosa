@@ -117,46 +117,50 @@ tank3$tank <- "3"
 #merge both tanks' data for plotting
 tank2_3 <- rbind(tank2, tank3)
 
+#create column for seconds
+tank2$sec <- tank2$interval_3sec*3
+tank3$sec <- tank3$interval_3sec*3
+tank2_3$sec <- tank2_3$interval_3sec*3
 ```
 
 plot O2 over time for Tank 2  
 ```{r, echo=FALSE}
-ggplot(tank2, aes(interval_3sec,Value, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("umol O2/L") + ggtitle("O2 over time for tank2 respirometry trial 1, channel 4 = control")
+ggplot(tank2, aes(sec,Value, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("umol O2/L") + ggtitle("O2 over time for tank2 respirometry trial 1, channel 4 = control")
 
-ggplot(tank2, aes(interval_3sec,TransValue, color = Channel)) + geom_point() + xlab("interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("O2 over time for tank2 respirometry trial 1, channel 4 = control")
+ggplot(tank2, aes(sec,TransValue, color = Channel)) + geom_point() + xlab("interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("O2 over time for tank2 respirometry trial 1, channel 4 = control")
 ```
 
 plot O2 over time for Tank 3  
 ```{r, echo=FALSE}
-ggplot(tank3, aes(interval_3sec,Value, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("umol O2/L") + ggtitle("O2 over time for tank3 respirometry trial 1, channel 4 = control")
+ggplot(tank3, aes(sec,Value, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("umol O2/L") + ggtitle("O2 over time for tank3 respirometry trial 1, channel 4 = control")
 
-ggplot(tank3, aes(interval_3sec,TransValue, color = Channel)) + geom_point() + xlab("interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("O2 over time for tank3 respirometry trial 1, channel 4 = control")
+ggplot(tank3, aes(sec,TransValue, color = Channel)) + geom_point() + xlab("interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("O2 over time for tank3 respirometry trial 1, channel 4 = control")
 
 ```
 
 
 Plot Temperature over time for tank 2
 ```{r, echo = FALSE}
-ggplot(tank2, aes(interval_3sec,Temp, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("temperature (C)") + ggtitle("temperature over time for tank 2 respirometry trial 1")
+ggplot(tank2, aes(sec,Temp, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("temperature (C)") + ggtitle("temperature over time for tank 2 respirometry trial 1")
 ```
 
 
 Plot Temperature over time for tank 3
 ```{r, echo = FALSE}
-ggplot(tank3, aes(interval_3sec,Temp, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("temperature (C)") + ggtitle("temperature over time for tank 3 respirometry trial 1")
+ggplot(tank3, aes(sec,Temp, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("temperature (C)") + ggtitle("temperature over time for tank 3 respirometry trial 1")
 ```
 
 Tank2 and Tank3 temperature data on the same plot
 ```{r, echo = FALSE}
-ggplot(tank2_3, aes(interval_3sec,Temp, color = tank)) + geom_point() + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("temperature (C)") + ggtitle("temperature over time for respirometry trial 1")
+ggplot(tank2_3, aes(sec,Temp, color = tank)) + geom_point() + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("temperature (C)") + ggtitle("temperature over time for respirometry trial 1")
 ```
 
 Tank2 and Tank3 O2 data on the same plot
 ```{r, echo=FALSE}
-ggplot(tank2_3, aes(interval_3sec,TransValue)) + geom_point(aes(color = paste(tank,Channel))) + xlab("time interval (3 seconds)") + ylab("umol O2/L") + ggtitle("change in O2 over time;  different color for each tank.channel combo")
+ggplot(tank2_3, aes(sec,TransValue)) + geom_point(aes(color = paste(tank,Channel))) + xlab("time interval (3 seconds)") + ylab("umol O2/L") + ggtitle("change in O2 over time;  different color for each tank.channel combo")
 
 #plot with common colors for channels and tanks
-ggplot(tank2_3, aes(interval_3sec,TransValue)) + geom_point(aes(color = tank)) + scale_color_manual(values = c("black", "magenta", "cyan", "darkgreen", "gold", "darkgrey","magenta", "cyan", "darkgreen", "gold")) + geom_line(aes(interval_3sec, TransValue,color = paste(tank,Channel))) + theme_bw() + xlab("time interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("change in O2 over time;  common colors for tanks and channels")
+ggplot(tank2_3, aes(sec,TransValue)) + geom_point(aes(color = tank)) + scale_color_manual(values = c("turquoise", "black", "black", "black", "darkgrey", "coral","black", "black", "black", "darkgrey")) + geom_line(aes(sec, TransValue,color = paste(tank,Channel))) + theme_bw() + xlab("time interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("change in O2 over time;  common colors for tanks and channels")
 
 ```
 
@@ -165,20 +169,20 @@ Fitting lines and comparing slopes
 ```{r, echo = FALSE, eval = FALSE}
 ####for original O2 values; these end up being the same slopes
 #fit a line to the O2 values for tank2
-fit1 <- lm(Value ~ interval_3sec, data = tank2[which(tank2$Channel == "1"),])
-fit2 <- lm(Value ~ interval_3sec, data = tank2[which(tank2$Channel == "2"),])
-fit3 <- lm(Value ~ interval_3sec, data = tank2[which(tank2$Channel == "3"),])
-fit4 <- lm(Value ~ interval_3sec, data = tank2[which(tank2$Channel == "4"),])
+fit1 <- lm(Value ~ sec, data = tank2[which(tank2$Channel == "1"),])
+fit2 <- lm(Value ~ sec, data = tank2[which(tank2$Channel == "2"),])
+fit3 <- lm(Value ~ sec, data = tank2[which(tank2$Channel == "3"),])
+fit4 <- lm(Value ~ sec, data = tank2[which(tank2$Channel == "4"),])
 Tank2slopeIntercept <- data.frame(rbind(fit1$coefficients, fit2$coefficients, fit3$coefficients, fit4$coefficients))
 colnames(Tank2slopeIntercept) <- c("Intercept (umol/L)", "slope (umol^-L/time (3 sec.))")
 Tank2slopeIntercept$Tank <- "2"
 Tank2slopeIntercept$Channel <- row.names(Tank2slopeIntercept)
 Tank2slopeIntercept$sample <- c("test", "test","test","control")
 
-fit1 <- lm(Value ~ interval_3sec, data = tank3[which(tank3$Channel == "1"),])
-fit2 <- lm(Value ~ interval_3sec, data = tank3[which(tank3$Channel == "2"),])
-fit3 <- lm(Value ~ interval_3sec, data = tank3[which(tank3$Channel == "3"),])
-fit4 <- lm(Value ~ interval_3sec, data = tank3[which(tank3$Channel == "4"),])
+fit1 <- lm(Value ~ sec, data = tank3[which(tank3$Channel == "1"),])
+fit2 <- lm(Value ~ sec, data = tank3[which(tank3$Channel == "2"),])
+fit3 <- lm(Value ~ sec, data = tank3[which(tank3$Channel == "3"),])
+fit4 <- lm(Value ~ sec, data = tank3[which(tank3$Channel == "4"),])
 Tank3slopeIntercept <- data.frame(rbind(fit1$coefficients, fit2$coefficients, fit3$coefficients, fit4$coefficients))
 colnames(Tank3slopeIntercept) <- c("Intercept (umol/L)", "slope (umol^-L/time (3 sec.))")
 Tank3slopeIntercept$Tank <- "3"
@@ -191,10 +195,10 @@ tank2_3slopeIntercept %>% kable() %>% kable_styling()
 
 ```{r, echo = FALSE}
 #fit lines for transformed values
-fit1 <- lm(TransValue ~ interval_3sec, data = tank2[which(tank2$Channel == "1"),])
-fit2 <- lm(TransValue ~ interval_3sec, data = tank2[which(tank2$Channel == "2"),])
-fit3 <- lm(TransValue ~ interval_3sec, data = tank2[which(tank2$Channel == "3"),])
-fit4 <- lm(TransValue ~ interval_3sec, data = tank2[which(tank2$Channel == "4"),])
+fit1 <- lm(TransValue ~ sec, data = tank2[which(tank2$Channel == "1"),])
+fit2 <- lm(TransValue ~ sec, data = tank2[which(tank2$Channel == "2"),])
+fit3 <- lm(TransValue ~ sec, data = tank2[which(tank2$Channel == "3"),])
+fit4 <- lm(TransValue ~ sec, data = tank2[which(tank2$Channel == "4"),])
 Tank2TRANSslopeIntercept <- data.frame(rbind(fit1$coefficients, fit2$coefficients, fit3$coefficients, fit4$coefficients))
 colnames(Tank2TRANSslopeIntercept) <- c("Intercept (umol/L)", "slope (umol^-L/time (3 sec.))")
 Tank2TRANSslopeIntercept$Tank <- "2"
@@ -203,10 +207,10 @@ Tank2TRANSslopeIntercept$Subject <- c("test", "test","test","control")
 Tank2TRANSslopeIntercept$Treatment <- "low"
 
 #fit a line to the O2 values for tank 3
-fit1 <- lm(TransValue ~ interval_3sec, data = tank3[which(tank3$Channel == "1"),])
-fit2 <- lm(TransValue ~ interval_3sec, data = tank3[which(tank3$Channel == "2"),])
-fit3 <- lm(TransValue ~ interval_3sec, data = tank3[which(tank3$Channel == "3"),])
-fit4 <- lm(TransValue ~ interval_3sec, data = tank3[which(tank3$Channel == "4"),])
+fit1 <- lm(TransValue ~ sec, data = tank3[which(tank3$Channel == "1"),])
+fit2 <- lm(TransValue ~ sec, data = tank3[which(tank3$Channel == "2"),])
+fit3 <- lm(TransValue ~ sec, data = tank3[which(tank3$Channel == "3"),])
+fit4 <- lm(TransValue ~ sec, data = tank3[which(tank3$Channel == "4"),])
 Tank3TRANSslopeIntercept <- data.frame(rbind(fit1$coefficients, fit2$coefficients, fit3$coefficients, fit4$coefficients))
 colnames(Tank3TRANSslopeIntercept) <- c("Intercept (umol/L)", "slope (umol^-L/time (3 sec.))")
 Tank3TRANSslopeIntercept$Tank <- "3"
