@@ -156,7 +156,7 @@ Tank2 and Tank3 O2 data on the same plot
 ggplot(tank2_3, aes(interval_3sec,TransValue)) + geom_point(aes(color = paste(tank,Channel))) + xlab("time interval (3 seconds)") + ylab("umol O2/L") + ggtitle("change in O2 over time;  different color for each tank.channel combo")
 
 #plot with common colors for channels and tanks
-ggplot(tank2_3, aes(interval_3sec,TransValue)) + geom_point(aes(color = tank)) + scale_color_manual(values = c("black", "red", "blue", "green", "yellow", "darkgrey","magenta", "cyan", "darkgreen", "gold")) + geom_line(aes(interval_3sec, TransValue,color = paste(tank,Channel))) + theme_bw() + xlab("time interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("change in O2 over time;  common colors for tanks and channels")
+ggplot(tank2_3, aes(interval_3sec,TransValue)) + geom_point(aes(color = tank)) + scale_color_manual(values = c("black", "magenta", "cyan", "darkgreen", "gold", "darkgrey","magenta", "cyan", "darkgreen", "gold")) + geom_line(aes(interval_3sec, TransValue,color = paste(tank,Channel))) + theme_bw() + xlab("time interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("change in O2 over time;  common colors for tanks and channels")
 
 ```
 
@@ -220,5 +220,5 @@ kable(tank2_3TRANSslopeIntercept, format = "markdown") %>% kable_styling(bootstr
 ```
 
 ```{r, echo = FALSE}
-ggplot(tank2_3TRANSslopeIntercept[which(tank2_3TRANSslopeIntercept$Channel != "4"),c(2,6)]) + geom_boxplot(aes("Tank","slope (umol^-L/time (3 sec.))")) + ggtitle("boxplots of change in O2 for channels 1-3 (controls not included)")
+ggplot(tank2_3TRANSslopeIntercept[which(tank2_3TRANSslopeIntercept$Channel != "4"),c(2,6)]) + geom_boxplot(aes(Treatment,`slope (umol^-L/time (3 sec.))`, fill = Treatment)) + ggtitle("boxplots of change in O2 for channels 1-3 (controls not included)")
 ```
