@@ -1,0 +1,224 @@
+---
+title: "BroodstockRespirometryFall2018"
+author: "Shelly Trigg"
+date: "12/12/2018"
+output: rmarkdown::github_document
+---
+
+This is a first pass at respirometry data analysis on the Dec. 3, 2018 trial on 3 animals from Tank 2 (constant low pH 6.8) and Tank 3 (ambient). The data has not yet been corrected with the blanks, the chamber size, or the biovolume.
+
+
+Load libraries
+```{r, echo = FALSE}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+```
+
+```{r, echo = FALSE}
+#Read in data
+resp_data_tank2_1 <- read.csv("../data/20181203/tank2/20181203_ch1_O2.csv", skip = 1)
+resp_data_tank2_2 <- read.csv("../data/20181203/tank2/20181203_ch2_O2.csv", skip = 1)
+resp_data_tank2_3 <- read.csv("../data/20181203/tank2/20181203_ch3_O2.csv", skip = 1)
+resp_data_tank2_C <- read.csv("../data/20181203/tank2/20181203_ch4_O2.csv", skip = 1)
+resp_data_tank3_1 <- read.csv("../data/20181203/tank3/20181203_ch1_O2_tank3.csv", skip = 1)
+resp_data_tank3_2 <- read.csv("../data/20181203/tank3/20181203_ch2_O2_tank3.csv", skip = 1)
+resp_data_tank3_3 <- read.csv("../data/20181203/tank3/20181203_ch3_O2_tank3.csv", skip = 1)
+resp_data_tank3_C <- read.csv("../data/20181203/tank3/20181203_ch4_O2_tank3.csv", skip = 1)
+
+#remove last row from all dataframes
+resp_data_tank2_1 <- resp_data_tank2_1[1:nrow(resp_data_tank2_1)-1,]
+resp_data_tank2_2 <- resp_data_tank2_2[1:nrow(resp_data_tank2_2)-1,]
+resp_data_tank2_3 <- resp_data_tank2_3[1:nrow(resp_data_tank2_3)-1,]
+resp_data_tank2_C <- resp_data_tank2_C[1:nrow(resp_data_tank2_C)-1,]
+resp_data_tank3_1 <- resp_data_tank3_1[1:nrow(resp_data_tank3_1)-1,]
+resp_data_tank3_2 <- resp_data_tank3_2[1:nrow(resp_data_tank3_2)-1,]
+resp_data_tank3_3 <- resp_data_tank3_3[1:nrow(resp_data_tank3_3)-1,]
+resp_data_tank3_C <- resp_data_tank3_C[1:nrow(resp_data_tank3_C)-1,]
+```
+
+
+```{r, echo = FALSE}
+#clean up data
+# merge all channel data for tank 2
+tank2 <- rbind(resp_data_tank2_C, resp_data_tank2_3, resp_data_tank2_1, resp_data_tank2_2)
+tank3 <- rbind(resp_data_tank3_C,resp_data_tank3_3, resp_data_tank3_2, resp_data_tank3_1)
+
+#convert date column to date class
+tank2$DateTime <- as.POSIXct(paste(tank2$Date, tank2$Time), format = "%m/%d/%Y %H:%M:%S")
+tank3$DateTime <- as.POSIXct(paste(tank3$Date, tank3$Time), format = "%m/%d/%Y %H:%M:%S")
+
+#exclude prelinimary data not part of trial
+tank2 <- tank2[which(tank2$DateTime > as.POSIXct("2018-12-03 16:00:00")),]
+
+
+#subset tank 3 data out because Oxy10 software combined it with tank2 data
+tank3 <- tank3[which(tank3$DateTime > format("2018-12-03 17:14:10", format = "%m/%d/%Y %H:%M:%S")),]
+
+#spread O2 channel data across columns
+tank3_spread <- spread(tank3[,c("Time", "Channel", "Value")], "Channel", "Value")
+tank2_spread <- spread(tank2[,c("Time", "Channel", "Value")], "Channel", "Value")
+#create a time period column
+tank3_spread$interval_3sec <- seq(1:nrow(tank3_spread))
+tank2_spread$interval_3sec <- seq(1:nrow(tank2_spread))
+```
+
+```{r, echo = FALSE}
+####normalizing data so intercept is irrelevant
+fixed_int <- 230
+
+### create adjustment factor objects to get all data on the same intercept
+adj1 <- fixed_int - tank2_spread[which(tank2_spread$interval_3sec == "1"),"1"]
+adj2 <- fixed_int - tank2_spread[which(tank2_spread$interval_3sec == "1"),"2"]
+adj3 <- fixed_int - tank2_spread[which(tank2_spread$interval_3sec == "1"),"3"]
+adj4 <- fixed_int - tank2_spread[which(tank2_spread$interval_3sec == "1"),"4"]
+
+## add the adjustment factor to the O2 vals
+tank2_spread$trans1 <- tank2_spread$`1` + adj1
+tank2_spread$trans2 <- tank2_spread$`2` + adj2
+tank2_spread$trans3 <- tank2_spread$`3` + adj3
+tank2_spread$trans4 <- tank2_spread$`4` + adj4
+
+adj1 <- fixed_int - tank3_spread[which(tank3_spread$interval_3sec == "1"),"1"]
+adj2 <- fixed_int - tank3_spread[which(tank3_spread$interval_3sec == "1"),"2"]
+adj3 <- fixed_int - tank3_spread[which(tank3_spread$interval_3sec == "1"),"3"]
+adj4 <- fixed_int - tank3_spread[which(tank3_spread$interval_3sec == "1"),"4"]
+
+## add the adjustment factor to the O2 vals
+tank3_spread$trans1 <- tank3_spread$`1` + adj1
+tank3_spread$trans2 <- tank3_spread$`2` + adj2
+tank3_spread$trans3 <- tank3_spread$`3` + adj3
+tank3_spread$trans4 <- tank3_spread$`4` + adj4
+
+
+## reshape transformed values data back to long format and save a seperate dataframe
+tank3_spread_trans <- gather(tank3_spread[,-c(2:5)], "Channel","TransValue", 3:6)
+tank2_spread_trans <- gather(tank2_spread[,-c(2:5)], "Channel","TransValue", 3:6)
+tank3_spread_trans$Channel <- gsub("trans","",tank3_spread_trans$Channel)
+tank2_spread_trans$Channel <- gsub("trans","",tank2_spread_trans$Channel)
+
+
+#reshape original O2 channel data back to long format
+tank3_spread <- gather(tank3_spread[,-c(7:10)], "Channel","Value", 2:5)
+tank2_spread <- gather(tank2_spread[,-c(7:10)], "Channel","Value", 2:5)
+
+#merge data with interval info and transformed data with rest of presens data
+tank3 <- merge(tank3, tank3_spread, by= c("Time", "Channel", "Value"))
+tank2 <- merge(tank2, tank2_spread, by= c("Time", "Channel", "Value"))
+tank3 <- merge(tank3, tank3_spread_trans, by= c("Time", "Channel", "interval_3sec"))
+tank2 <- merge(tank2, tank2_spread_trans, by= c("Time", "Channel","interval_3sec"))
+
+#add column to specify tank number for merging both files
+tank2$tank <- "2"
+tank3$tank <- "3"
+
+#merge both tanks' data for plotting
+tank2_3 <- rbind(tank2, tank3)
+
+```
+
+plot O2 over time for Tank 2  
+```{r, echo=FALSE}
+ggplot(tank2, aes(interval_3sec,Value, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("umol O2/L") + ggtitle("O2 over time for tank2 respirometry trial 1, channel 4 = control")
+
+ggplot(tank2, aes(interval_3sec,TransValue, color = Channel)) + geom_point() + xlab("interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("O2 over time for tank2 respirometry trial 1, channel 4 = control")
+```
+
+plot O2 over time for Tank 3  
+```{r, echo=FALSE}
+ggplot(tank3, aes(interval_3sec,Value, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("umol O2/L") + ggtitle("O2 over time for tank3 respirometry trial 1, channel 4 = control")
+
+ggplot(tank3, aes(interval_3sec,TransValue, color = Channel)) + geom_point() + xlab("interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("O2 over time for tank3 respirometry trial 1, channel 4 = control")
+
+```
+
+
+Plot Temperature over time for tank 2
+```{r, echo = FALSE}
+ggplot(tank2, aes(interval_3sec,Temp, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("temperature (C)") + ggtitle("temperature over time for tank 2 respirometry trial 1")
+```
+
+
+Plot Temperature over time for tank 3
+```{r, echo = FALSE}
+ggplot(tank3, aes(interval_3sec,Temp, color = Channel)) + geom_point() + geom_smooth(method='lm', se = FALSE) + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("temperature (C)") + ggtitle("temperature over time for tank 3 respirometry trial 1")
+```
+
+Tank2 and Tank3 temperature data on the same plot
+```{r, echo = FALSE}
+ggplot(tank2_3, aes(interval_3sec,Temp, color = tank)) + geom_point() + facet_wrap(~Channel) + xlab("interval (3 seconds)") + ylab("temperature (C)") + ggtitle("temperature over time for respirometry trial 1")
+```
+
+Tank2 and Tank3 O2 data on the same plot
+```{r, echo=FALSE}
+ggplot(tank2_3, aes(interval_3sec,TransValue)) + geom_point(aes(color = paste(tank,Channel))) + xlab("time interval (3 seconds)") + ylab("umol O2/L") + ggtitle("change in O2 over time;  different color for each tank.channel combo")
+
+#plot with common colors for channels and tanks
+ggplot(tank2_3, aes(interval_3sec,TransValue)) + geom_point(aes(color = tank)) + scale_color_manual(values = c("black", "red", "blue", "green", "yellow", "darkgrey","magenta", "cyan", "darkgreen", "gold")) + geom_line(aes(interval_3sec, TransValue,color = paste(tank,Channel))) + theme_bw() + xlab("time interval (3 seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("change in O2 over time;  common colors for tanks and channels")
+
+```
+
+
+Fitting lines and comparing slopes 
+```{r, echo = FALSE, eval = FALSE}
+####for original O2 values; these end up being the same slopes
+#fit a line to the O2 values for tank2
+fit1 <- lm(Value ~ interval_3sec, data = tank2[which(tank2$Channel == "1"),])
+fit2 <- lm(Value ~ interval_3sec, data = tank2[which(tank2$Channel == "2"),])
+fit3 <- lm(Value ~ interval_3sec, data = tank2[which(tank2$Channel == "3"),])
+fit4 <- lm(Value ~ interval_3sec, data = tank2[which(tank2$Channel == "4"),])
+Tank2slopeIntercept <- data.frame(rbind(fit1$coefficients, fit2$coefficients, fit3$coefficients, fit4$coefficients))
+colnames(Tank2slopeIntercept) <- c("Intercept (umol/L)", "slope (umol^-L/time (3 sec.))")
+Tank2slopeIntercept$Tank <- "2"
+Tank2slopeIntercept$Channel <- row.names(Tank2slopeIntercept)
+Tank2slopeIntercept$sample <- c("test", "test","test","control")
+
+fit1 <- lm(Value ~ interval_3sec, data = tank3[which(tank3$Channel == "1"),])
+fit2 <- lm(Value ~ interval_3sec, data = tank3[which(tank3$Channel == "2"),])
+fit3 <- lm(Value ~ interval_3sec, data = tank3[which(tank3$Channel == "3"),])
+fit4 <- lm(Value ~ interval_3sec, data = tank3[which(tank3$Channel == "4"),])
+Tank3slopeIntercept <- data.frame(rbind(fit1$coefficients, fit2$coefficients, fit3$coefficients, fit4$coefficients))
+colnames(Tank3slopeIntercept) <- c("Intercept (umol/L)", "slope (umol^-L/time (3 sec.))")
+Tank3slopeIntercept$Tank <- "3"
+Tank3slopeIntercept$Channel <- row.names(Tank3slopeIntercept)
+Tank3slopeIntercept$sample <- c("test", "test","test","control")
+
+tank2_3slopeIntercept <- rbind(Tank2slopeIntercept,Tank3slopeIntercept)
+tank2_3slopeIntercept %>% kable() %>% kable_styling()
+```
+
+```{r, echo = FALSE}
+#fit lines for transformed values
+fit1 <- lm(TransValue ~ interval_3sec, data = tank2[which(tank2$Channel == "1"),])
+fit2 <- lm(TransValue ~ interval_3sec, data = tank2[which(tank2$Channel == "2"),])
+fit3 <- lm(TransValue ~ interval_3sec, data = tank2[which(tank2$Channel == "3"),])
+fit4 <- lm(TransValue ~ interval_3sec, data = tank2[which(tank2$Channel == "4"),])
+Tank2TRANSslopeIntercept <- data.frame(rbind(fit1$coefficients, fit2$coefficients, fit3$coefficients, fit4$coefficients))
+colnames(Tank2TRANSslopeIntercept) <- c("Intercept (umol/L)", "slope (umol^-L/time (3 sec.))")
+Tank2TRANSslopeIntercept$Tank <- "2"
+Tank2TRANSslopeIntercept$Channel <- row.names(Tank2TRANSslopeIntercept)
+Tank2TRANSslopeIntercept$Subject <- c("test", "test","test","control")
+Tank2TRANSslopeIntercept$Treatment <- "low"
+
+#fit a line to the O2 values for tank 3
+fit1 <- lm(TransValue ~ interval_3sec, data = tank3[which(tank3$Channel == "1"),])
+fit2 <- lm(TransValue ~ interval_3sec, data = tank3[which(tank3$Channel == "2"),])
+fit3 <- lm(TransValue ~ interval_3sec, data = tank3[which(tank3$Channel == "3"),])
+fit4 <- lm(TransValue ~ interval_3sec, data = tank3[which(tank3$Channel == "4"),])
+Tank3TRANSslopeIntercept <- data.frame(rbind(fit1$coefficients, fit2$coefficients, fit3$coefficients, fit4$coefficients))
+colnames(Tank3TRANSslopeIntercept) <- c("Intercept (umol/L)", "slope (umol^-L/time (3 sec.))")
+Tank3TRANSslopeIntercept$Tank <- "3"
+Tank3TRANSslopeIntercept$Channel <- row.names(Tank3TRANSslopeIntercept)
+Tank3TRANSslopeIntercept$Subject <- c("test", "test","test","control")
+Tank3TRANSslopeIntercept$Treatment <- "ambient"
+
+tank2_3TRANSslopeIntercept <- rbind(Tank2TRANSslopeIntercept,Tank3TRANSslopeIntercept)
+kable(tank2_3TRANSslopeIntercept, format = "markdown") %>% kable_styling(bootstrap_options = "striped", full_width = F)
+
+```
+
+```{r, echo = FALSE}
+ggplot(tank2_3TRANSslopeIntercept[which(tank2_3TRANSslopeIntercept$Channel != "4"),c(2,6)]) + geom_boxplot(aes("Tank","slope (umol^-L/time (3 sec.))")) + ggtitle("boxplots of change in O2 for channels 1-3 (controls not included)")
+```

@@ -3,11 +3,11 @@ library("XML")
 library("plyr")
 
 #set start date, number of days from start date, and IP address variables
-startdate <- 181026 #start date of data to download in yymmdd format   
-numdays <- 14 #number of days of of data to download  
-IPaddress <- '192.168.1.101:80' #this is listed under 'IP Address' in Apex app under the wifi icon. I included this variable because when the internet goes out or routers get reset, the Apex IP address can change.
+startdate <- 181201 #start date of data to download in yymmdd format   
+numdays <- 20 #number of days of of data to download  
+IPaddress <- "192.168.1.201:80" #this is listed under 'IP Address' in Apex app under the wifi icon. I included this variable because when the internet goes out or routers get reset, the Apex IP address can change.
 #retrieve Apex data for specified date range
-xmlfile <- xmlParse(paste("http://",IPaddress,"/cgi-bin/datalog.xml?sdate=",startdate,"&days=",numdays)) 
+xmlfile <- xmlParse(paste("http://",IPaddress,"/cgi-bin/datalog.xml?sdate=",startdate,"&days=",numdays, sep="")) 
 
 #convert xml to dataframe
 Apex.Data <- ldply(xmlToList(xmlfile), data.frame) 
