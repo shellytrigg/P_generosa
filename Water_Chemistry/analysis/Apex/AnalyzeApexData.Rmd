@@ -2,18 +2,18 @@
 title: "AnalyzeApexData"
 author: "Shelly Trigg"
 date: "12/14/2018"
-output: output:  rmarkdown::github_document:
-          html_preview: false
+output: output:  rmarkdown::github_document
 ---
 load libraries
-```{r}
-library(plyr)
+```{r, echo = FALSe}
+library("plyr")
 library("tidyr")
 library("ggplot2")
+library("rowr")
 ```
 
 Read in Apex data
-```{r}
+```{r, echo=FALSE}
 #define data path variable with the path where the Apex data lives
 data_path <- "~/Documents/GitHub/P_generosa/Water_Chemistry/data/Apex"
 #create a list of the Apex data files that includes their full paths
@@ -28,7 +28,7 @@ for (i in 1:length(filenames)){
 ```
 
 Clean data up 
-```{r}
+```{r, echo=FALSe}
 #exclude rows where data is NA and first 2 uninformative columns 
 Apex.cum.data <- Apex.cum.data[which(!is.na(Apex.cum.data$date)),-c(1:2,grep("type", colnames(Apex.cum.data)))]
 #probe name and data are listed in pairwise columns. The following code reorganizes the table to have 
@@ -51,8 +51,28 @@ Apex.cum.data <- Apex.cum.data[grep("pH|Tmp|Salt|ORP", Apex.cum.data$probe),]
 Apex.cum.data$date <- as.POSIXct(strptime(Apex.cum.data$date, "%m/%d/%Y %H:%M:%S"))
 #remove duplicate rows from overlapping Apex.data
 Apex.cum.data <- unique(Apex.cum.data)
+
+### only look at Apex data from exp. start time
+
+Apex.cum.data <- Apex.cum.data[which(Apex.cum.data$date > as.POSIXct("2018-11-12 09:00:00")),]
+
 #Probe 'Tmpx6' and 'pHx6' were renamed to 'Tmp-2' and 'pH-2' so rename them in the data to reflect that
-Apex.Data$probe <- gsub("x6", "_2", Apex.Data$probe)
+Apex.cum.data$probe <- gsub("x6", "_2", Apex.cum.data$probe)
 #replace the hyphen in 'Tmp-2' and 'pH-2' with an underscore
-Apex.Data$probe <- gsub("-","_", Apex.Data$probe)
+Apex.cum.data$probe <- gsub("-","_", Apex.cum.data$probe)
+#rename probes for tanks 5 and 6
+Apex.cum.data$probe <- gsub("x7","_5", Apex.cum.data$probe)
+Apex.cum.data$probe <- gsub("x8","_6", Apex.cum.data$probe)
+```
+
+Plotting Apex data
+```{r, echo = FALSE}
+#Apex pH data from Oct 26 (start day) - Nov 7 2018
+library(ggplot2)
+ggplot(Apex.cum.data[grep("pH", Apex.cum.data$probe),], aes(x= date, y= value)) + geom_point() + scale_x_datetime("date", date_breaks = "day", date_labels = "%b %d", expand = c(0,0), minor_breaks = NULL) + xlab("Date") + ylab("pH")  + facet_wrap(~probe, scale = "free") + theme(axis.text.x=element_text(angle = 90, hjust = 0)) + ggtitle("All Apex pH data over time for all tanks")
+
+ggplot(Apex.cum.data[which(substr(Apex.cum.data$probe,0,2)=="pH" & Apex.cum.data$value > 5 & Apex.cum.data$value < 9),], aes(x= date, y= value)) + geom_point() + scale_x_datetime("date", date_breaks = "day", date_labels = "%b %d", expand = c(0,0), minor_breaks = NULL) + xlab("Date") + ylab("pH")  + facet_wrap(~probe, scale = "free") + theme(axis.text.x=element_text(angle = 90, hjust = 0)) + ggtitle("Apex pH data over time for all tanks excluding calibration and cleaning")
+
+#Apex temperature data from Oct 26 (start day) - Nov 7 2018
+ggplot(Apex.cum.data[grep("Tmp", Apex.cum.data$probe),], aes(x= date, y= value)) + geom_point() + scale_x_datetime("date", date_breaks = "day", date_labels = "%b %d", expand = c(0,0), minor_breaks = NULL) + xlab("Date") + ylab("Temp (Celcius)")  + facet_wrap(~probe, scale = "free") + theme(axis.text.x=element_text(angle = 90, hjust = 0))
 ```

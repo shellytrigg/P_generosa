@@ -24,12 +24,12 @@ library(tidyverse)
 
 #CHANGE THESE VALUES EVERY DAY----------------------------------------------
 # Date that the data were run
-date<-'20181219'
+date<-'20181205'
 
 
 #path<-paste("Data/",date, sep = "") #the location of all your titration files
-massfile<-paste(date,"mass_run1.csv", sep ="") # name of your file with masses
-titrationfile<-paste(date,"_run1.csv",sep = "") # name of the last titration file run
+massfile<-paste(date,"mass_run2.csv", sep ="") # name of your file with masses
+titrationfile<-paste(date,"_run2.csv",sep = "") # name of the last titration file run
 
 
 #DO NOT CHANGE ANYTHING BELOW THIS LINE UNLESS A NEW BOTTLE OF ACID IS USED
@@ -38,7 +38,7 @@ titrationfile<-paste(date,"_run1.csv",sep = "") # name of the last titration fil
 Mass<-read.csv(file.path(main,date,massfile), header=T, sep=",", na.string="NA", as.is=T) 
 
 #### pH Calibration #####
-pHCal<-read.csv(paste(main,'pHCalibration.csv', sep = "/")) # read in the pH Calibration file
+pHCal<-read.csv(paste(main,'pHCalibration.csv', sep = "/"), stringsAsFactors = FALSE) # read in the pH Calibration file
 
 #select the calibration for the correct date
 pHData<-pHCal[pHCal$Date==date,]
@@ -154,5 +154,8 @@ for(i in 1:length(TA.files)){
 
 cumu.data <- rbind(cumu.data,update.data)
 cumu.data$sample.name <- substr(cumu.data$Sample.ID,10,length(cumu.data$Sample.ID))
+cumu.data$sample.date <- substr(cumu.data$Sample.ID,1,8)
 write.table(cumu.data,paste(main,"/Cumu_TA_Output.csv", sep = ""),sep=",", row.names=FALSE)
+
+
 
