@@ -1,4 +1,4 @@
-BroodstockRespirometryFall2018
+Fall 2018 Broodstock Respirometry Trial 1
 ================
 Shelly Trigg
 12/12/2018
@@ -41,10 +41,6 @@ Tank2 and Tank3 temperature data on the same plot ![](20181203_trial1_tank2and3_
 Tank2 and Tank3 O2 data on the same plot ![](20181203_trial1_tank2and3_files/figure-markdown_github/unnamed-chunk-10-1.png)![](20181203_trial1_tank2and3_files/figure-markdown_github/unnamed-chunk-10-2.png)
 
 Fitting lines and comparing slopes
-
-    ## Warning in kable_styling(., bootstrap_options = "striped", full_width =
-    ## F): Please specify format in kable. kableExtra can customize either HTML or
-    ## LaTeX outputs. See https://haozhu233.github.io/kableExtra/ for details.
 
 |  Intercept (umol/L)|  slope (umol^-L/time (sec.))| Tank | Channel | Subject | Treatment |
 |-------------------:|----------------------------:|:-----|:--------|:--------|:----------|

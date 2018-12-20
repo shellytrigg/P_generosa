@@ -1,5 +1,5 @@
 ---
-title: "BroodstockRespirometryFall2018"
+title: "Fall 2018 Broodstock Respirometry Trial 1"
 author: "Shelly Trigg"
 date: "12/12/2018"
 output: rmarkdown::github_document
@@ -219,7 +219,7 @@ Tank3TRANSslopeIntercept$Subject <- c("test", "test","test","control")
 Tank3TRANSslopeIntercept$Treatment <- "ambient"
 
 tank2_3TRANSslopeIntercept <- rbind(Tank2TRANSslopeIntercept,Tank3TRANSslopeIntercept)
-kable(tank2_3TRANSslopeIntercept, format = "markdown") %>% kable_styling(bootstrap_options = "striped", full_width = F)
+kable(tank2_3TRANSslopeIntercept, format = "markdown")
 
 ```
 
