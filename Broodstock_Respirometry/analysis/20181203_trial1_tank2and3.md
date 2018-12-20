@@ -46,15 +46,15 @@ Fitting lines and comparing slopes
     ## F): Please specify format in kable. kableExtra can customize either HTML or
     ## LaTeX outputs. See https://haozhu233.github.io/kableExtra/ for details.
 
-|  Intercept (umol/L)|  slope (umol^-L/time (3 sec.))| Tank | Channel | Subject | Treatment |
-|-------------------:|------------------------------:|:-----|:--------|:--------|:----------|
-|            230.1187|                     -0.0014525| 2    | 1       | test    | low       |
-|            229.9417|                     -0.0034153| 2    | 2       | test    | low       |
-|            230.7827|                     -0.0032330| 2    | 3       | test    | low       |
-|            230.0067|                      0.0001227| 2    | 4       | control | low       |
-|            229.8767|                     -0.0025115| 3    | 1       | test    | ambient   |
-|            230.4835|                     -0.0032600| 3    | 2       | test    | ambient   |
-|            229.0767|                     -0.0072766| 3    | 3       | test    | ambient   |
-|            229.7751|                     -0.0001576| 3    | 4       | control | ambient   |
+|  Intercept (umol/L)|  slope (umol^-L/time (sec.))| Tank | Channel | Subject | Treatment |
+|-------------------:|----------------------------:|:-----|:--------|:--------|:----------|
+|            230.1187|                   -0.0014525| 2    | 1       | test    | low       |
+|            229.9417|                   -0.0034153| 2    | 2       | test    | low       |
+|            230.7827|                   -0.0032330| 2    | 3       | test    | low       |
+|            230.0067|                    0.0001227| 2    | 4       | control | low       |
+|            229.8767|                   -0.0025115| 3    | 1       | test    | ambient   |
+|            230.4835|                   -0.0032600| 3    | 2       | test    | ambient   |
+|            229.0767|                   -0.0072766| 3    | 3       | test    | ambient   |
+|            229.7751|                   -0.0001576| 3    | 4       | control | ambient   |
 
 ![](20181203_trial1_tank2and3_files/figure-markdown_github/unnamed-chunk-13-1.png)
