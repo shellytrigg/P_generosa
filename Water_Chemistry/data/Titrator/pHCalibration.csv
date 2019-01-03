@@ -17,4 +17,5 @@ Date,ZeroPoint,Slope,pH4,pH7,pH10,temp,Calib.status,notes,Initials
 20181205,7.06,-53.23,165.3,0,-164.7,12.5,??????,used Cal2 values,KRM
 20181205,7.059,-54.16,166.3,0.1,-167.1,13.3,pass,used Cal2 values,KRM
 20181212,--,--,--,--,--,--,--,Probe is very inconsistent during calibration; all 3 runs fail.,KRM
-20181219,7.012,-55.96,170.3,-2.3,-174.5,14.3,pass,New probe and Cal2 values used; very constant ,KRM
+20191219,7.012,-55.96,170.3,-2.3,-174.5,14.3,pass,New probe and Cal2 values used; very constant ,KRM
+20190102,6.936,-56.2,165.4,-6.6,-178.1,13.8,pass,new buffer,ES/NS/EC
