@@ -1,0 +1,114 @@
+---
+title: "Fall 2018 Broodstock Respirometry Trial 2"
+author: "Shelly Trigg"
+date: "12/19/2018"
+output: rmarkdown::github_document
+---
+
+This is a first pass at respirometry data analysis on the Dec. 12, 2018 trial on 4 animals from Tank 1 (constant low pH 6.8) and 4 animals from Tank 3 (ambient). The data has not yet been corrected with the blanks, the chamber size, or the biovolume.
+
+
+Load libraries
+```{r, echo = FALSE}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+```
+
+```{r, echo = FALSE}
+#Read in data
+resp_data_tank1_3 <- read.csv("../data/20181212/20181212_tanks1and3.csv", skip = 1)
+
+#remove last row from all dataframes
+resp_data_tank1_3 <- resp_data_tank1_3[1:nrow(resp_data_tank1_3)-1,]
+```
+
+
+```{r, echo = FALSE}
+#convert date column to date class
+resp_data_tank1_3$DateTime <- as.POSIXct(paste(resp_data_tank1_3$Date, resp_data_tank1_3$Time), format = "%m/%d/%Y %H:%M:%S")
+
+
+#subset 12/12/2018 data out because Oxy10 software combined it with other trial data
+resp_data_tank1_3 <- resp_data_tank1_3[which(resp_data_tank1_3$DateTime > format("2018-12-12 00:00:00", format = "%m/%d/%Y %H:%M:%S")),]
+
+#spread O2 channel data across columns
+resp_data_tank1_3_spread <- spread(resp_data_tank1_3[,c("Time", "Channel", "Value")], "Channel", "Value")
+#create a time period column
+resp_data_tank1_3_spread$interval_3sec <- seq(1:nrow(resp_data_tank1_3_spread))
+resp_data_tank1_3_spread$sec <- resp_data_tank1_3_spread$interval_3sec*3
+```
+
+```{r, echo = FALSE}
+####normalizing data so intercept is irrelevant
+fixed_int <- 230
+
+### create adjustment factor objects to get all data on the same intercept
+adj <- data.frame()
+for(i in 1:10){
+    adj <- rbind(adj, fixed_int - resp_data_tank1_3_spread[which(resp_data_tank1_3_spread$interval_3sec == 1),which(colnames(resp_data_tank1_3_spread) == i)])
+    colnames(adj) <- "adj"
+}
+
+### adjust O2 values using adjustment factor
+resp_data_tank1_3_spread_trans <- data.frame(matrix(0,ncol = 0, nrow = nrow(resp_data_tank1_3_spread)))
+for(i in 1:10){
+    resp_data_tank1_3_spread_trans <- cbind(resp_data_tank1_3_spread_trans,resp_data_tank1_3_spread[,which(colnames(resp_data_tank1_3_spread) == i)] + adj[which(rownames(adj)==i),"adj"])
+    colnames(resp_data_tank1_3_spread_trans)[i]<- i
+}
+
+###merge adj data with rest of data
+resp_data_tank1_3_spread_trans <- cbind(resp_data_tank1_3_spread[,c("Time", "interval_3sec", "sec")],resp_data_tank1_3_spread_trans)
+
+
+## reshape transformed values data back to long format and save a seperate dataframe
+resp_data_tank1_3_spread <- gather(resp_data_tank1_3_spread, "Channel","Value", 2:11)
+resp_data_tank1_3_spread_trans <- gather(resp_data_tank1_3_spread_trans, "Channel","TransValue", 4:13)
+
+
+#merge data with interval info and transformed data with rest of presens data
+resp_data_tank1_3 <- merge(resp_data_tank1_3, resp_data_tank1_3_spread, by= c("Time", "Channel", "Value"))
+resp_data_tank1_3 <- merge(resp_data_tank1_3, resp_data_tank1_3_spread_trans, by= c("Time", "Channel", "interval_3sec", "sec"))
+```
+
+Read in and merge metadata
+```{r, echo = FALSE}
+mdata <- read.csv("../data/Biovolume.csv")
+resp_data_tank1_3 <- merge(resp_data_tank1_3, mdata, by = "Channel")
+```
+
+
+Tank2 and Tank3 temperature data on the same plot
+```{r, echo = FALSE}
+ggplot(resp_data_tank1_3, aes(sec,Temp, color = Channel)) + geom_point() + xlab("seconds") + ylab("temperature (C)") + ggtitle("temperature over time for respirometry trial 1") + facet_wrap(~Treatment)
+```
+
+Tank2 and Tank3 O2 data on the same plot
+```{r, echo=FALSE}
+ggplot(resp_data_tank1_3, aes(sec,TransValue)) + geom_point(aes(color = Channel)) + xlab("time (seconds)") + ylab("umol O2/L") + ggtitle("change in O2 over time;  different color for each tank.channel combo") + facet_wrap(~Treatment)
+
+#plot with common colors for channels and tanks
+ggplot(resp_data_tank1_3, aes(sec,TransValue)) + geom_point(aes(color = Treatment)) + scale_color_manual(values = c("coral","gray", "black", "black", "black", "black", "turquoise","black", "black", "black", "gray","black")) + geom_line(aes(sec, TransValue,color = paste(Treatment,Channel))) + theme_bw() + xlab("time (seconds)") + ylab("umol O2/L (scaled to intercept at 230umol/L)") + ggtitle("change in O2 over time;  common colors for treatment and channels")
+
+```
+
+```{r, echo = FALSE}
+#fit lines for transformed values
+fit <- data.frame()
+for(i in 1:10){
+  fit1 <- lm(TransValue ~ sec, data = resp_data_tank1_3[which(resp_data_tank1_3$Channel == i),])
+  fit <- rbind(fit,fit1$coefficients)
+}
+colnames(fit) <- c("Intercept (umol/L)", "slope (umol^-L/time (sec.))")
+fit$Channel <- rownames(fit)
+fit <- merge(fit, mdata, by = "Channel")
+
+kable(fit, format = "markdown")
+
+```
+
+```{r, echo = FALSE}
+ggplot(fit[which(fit$Channel != "10") & which(fit$Channel != "8"),]) + geom_boxplot(aes(Treatment,`slope (umol^-L/time (sec.))`, fill = Treatment)) + ggtitle("boxplots of change in O2 for all channels excluding controls")
+```

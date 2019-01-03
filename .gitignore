@@ -1,11 +1,9 @@
 .DS_Store
 *.DS_Store
-*.Rproj*
 *.Rhistory
 *.RData
 *video/
 *pics/
-*~
 .Rproj.user
 *.html
 Apex_Setup_37399
