@@ -15,7 +15,7 @@
 rm(list=ls())
 
 #set working directory---------------------------------------------------------------------------------------------
-setwd("~/Documents/GitHub/P_generosa/Water_Chemistry/Data/Titrator/")
+setwd("GitHub/P_generosa/Water_Chemistry/Data/Titrator/")
 main<-getwd()
 
 #load libraries----------------------------------------------
@@ -24,7 +24,7 @@ library(tidyverse)
 
 #CHANGE THESE VALUES EVERY DAY----------------------------------------------
 # Date that the data were run
-date<-'20181205'
+date<-'20190103'
 
 
 #path<-paste("Data/",date, sep = "") #the location of all your titration files

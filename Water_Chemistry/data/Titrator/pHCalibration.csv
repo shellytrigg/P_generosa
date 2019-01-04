@@ -14,8 +14,9 @@ Date,ZeroPoint,Slope,pH4,pH7,pH10,temp,Calib.status,notes,Initials
 20181119,7.043,-55.79,168.3,0,-170.8,16.3,pass,used Cal2 values,KRM
 20181128,7.176,-57.81,167.4,7.8,-169.2,16.5,pass?,used Cal2 values,KRM
 20181205,7.194,-59.94,167.4,7.5,-162.2,13.1,fail,used Cal2 values,KRM
-20181205,7.06,-53.23,165.3,0,-164.7,12.5,??????,used Cal2 values,KRM
+20181205,7.06,-53.23,165.3,0,-164.7,12.5,??????,reran b/c of inconsistency,KRM
 20181205,7.059,-54.16,166.3,0.1,-167.1,13.3,pass,used Cal2 values,KRM
-20181212,--,--,--,--,--,--,--,Probe is very inconsistent during calibration; all 3 runs fail.,KRM
-20191219,7.012,-55.96,170.3,-2.3,-174.5,14.3,pass,New probe and Cal2 values used; very constant ,KRM
+20181212,--,--,--,--,--,--,--,Probe is very inconsistent during calibration; all 3 runs fail- samples poisoned. Tanks 1-4 run on 20181219 and tanks 5-6 run on 20190103.,KRM
+20191219,7.012,-55.96,170.3,-2.3,-174.5,14.3,pass,New probe and Cal2 values used; very constant. Tanks 1-4 from 20181212 run today. 20181219 samples poisoned.,KRM
 20190102,6.936,-56.2,165.4,-6.6,-178.1,13.8,pass,new buffer,ES/NS/EC
+20190103,6.926,-56.4,165.6,-6.3,-178.7,17.1,pass,used Cal2 values; tanks 5 and 6 from 20181212 run today.,KRM
