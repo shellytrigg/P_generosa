@@ -1,4 +1,4 @@
-Date,ZeroPoint,Slope,pH4,pH7,pH10,temp,Calib.status,notes,Initials
+Date,ZeroPoint,Slope,pH4 (171.4 mV),pH7 (0 mV),pH10 (-171.4 mV),temp,Calib.status,notes,Initials
 20180710,6.928,-57.12,167.2,-5.2,-180.7,20.3,pass,LabX gave 2 zero point and slope values; took 1st,ES
 20180711,6.796,-56.55,168.3,-2.4,-179.7,20.5,pass,LabX gave 2 zero point and slope values; took 1st,ES
 20180712,7.017,-55.83,168.4,0,-178.4,20.9,pass,LabX gave 2 zero point and slope values; took 1st,ES
@@ -10,13 +10,14 @@ Date,ZeroPoint,Slope,pH4,pH7,pH10,temp,Calib.status,notes,Initials
 20181102,7.034,-57.45,169.7,-0.1,-176,16.7,pass,used Cal2 values,
 20181107,7.03,-57.87,170.6,0.1,-176.3,18.6,pass,used Cal2 values,
 20181112,7.05,-55.93,168.9,0.1,-171.8,14.8,pass,used Cal2 values,
-20181116,7.046,-56.25,169.5,0.1,-172.1,16.2,pass,used Cal2 values,KRM
-20181119,7.043,-55.79,168.3,0,-170.8,16.3,pass,used Cal2 values,KRM
-20181128,7.176,-57.81,167.4,7.8,-169.2,16.5,pass?,used Cal2 values,KRM
-20181205,7.194,-59.94,167.4,7.5,-162.2,13.1,fail,used Cal2 values,KRM
+20181116,7.046,-56.25,169.5,0.1,-172.1,16.2,pass,used second zero and slope values,KRM
+20181119,7.043,-55.79,168.3,0,-170.8,16.3,pass,used second zero and slope values,KRM
+20181128,7.176,-57.81,167.4,7.8,-169.2,16.5,pass?,used second zero and slope values,KRM
+20181205,7.194,-59.94,167.4,7.5,-162.2,13.1,fail,used second zero and slope values,KRM
 20181205,7.06,-53.23,165.3,0,-164.7,12.5,??????,reran b/c of inconsistency,KRM
-20181205,7.059,-54.16,166.3,0.1,-167.1,13.3,pass,used Cal2 values,KRM
+20181205,7.059,-54.16,166.3,0.1,-167.1,13.3,pass,used second zero and slope values,KRM
 20181212,--,--,--,--,--,--,--,Probe is very inconsistent during calibration; all 3 runs fail- samples poisoned. Tanks 1-4 run on 20181219 and tanks 5-6 run on 20190103.,KRM
-20191219,7.012,-55.96,170.3,-2.3,-174.5,14.3,pass,New probe and Cal2 values used; very constant. Tanks 1-4 from 20181212 run today. 20181219 samples poisoned.,KRM
+20181219,7.012,-55.96,170.3,-2.3,-174.5,14.3,pass,New probe and Cal2 values used; very constant. Tanks 1-4 from 20181212 run today. 20181219 samples poisoned. Used second slope and zero values,KRM
 20190102,6.936,-56.2,165.4,-6.6,-178.1,13.8,pass,new buffer,ES/NS/EC
-20190103,6.926,-56.4,165.6,-6.3,-178.7,17.1,pass,used Cal2 values; tanks 5 and 6 from 20181212 run today.,KRM
+20190103,6.926,-56.4,165.6,-6.3,-178.7,17.1,pass,used second zero and slope values,KRM
+20190106,6.928,-56.01,164.9,-6.5,-178.5,15.7,pass,Temp was ~1.5C lower for pH10 (14.7C vs 16C); used second zero and slope values,KRM

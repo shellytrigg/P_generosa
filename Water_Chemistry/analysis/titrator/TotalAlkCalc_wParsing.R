@@ -15,7 +15,7 @@
 rm(list=ls())
 
 #set working directory---------------------------------------------------------------------------------------------
-setwd("GitHub/P_generosa/Water_Chemistry/Data/Titrator/")
+setwd("~/GitHub/P_generosa/Water_Chemistry/Data/Titrator")
 main<-getwd()
 
 #load libraries----------------------------------------------
@@ -24,12 +24,12 @@ library(tidyverse)
 
 #CHANGE THESE VALUES EVERY DAY----------------------------------------------
 # Date that the data were run
-date<-'20190103'
+date<-'20190106'
 
 
 #path<-paste("Data/",date, sep = "") #the location of all your titration files
-massfile<-paste(date,"mass_run2.csv", sep ="") # name of your file with masses
-titrationfile<-paste(date,"_run2.csv",sep = "") # name of the last titration file run
+massfile<-paste(date,"mass_run1.csv", sep ="") # name of your file with masses
+titrationfile<-paste(date,"_run1.csv",sep = "") # name of the last titration file run
 
 
 #DO NOT CHANGE ANYTHING BELOW THIS LINE UNLESS A NEW BOTTLE OF ACID IS USED
