@@ -21,3 +21,4 @@ Date,ZeroPoint,Slope,pH4 (171.4 mV),pH7 (0 mV),pH10 (-171.4 mV),temp,Calib.statu
 20190102,6.936,-56.2,165.4,-6.6,-178.1,13.8,pass,new buffer,ES/NS/EC
 20190103,6.926,-56.4,165.6,-6.3,-178.7,17.1,pass,used second zero and slope values,KRM
 20190106,6.928,-56.01,164.9,-6.5,-178.5,15.7,pass,Temp was ~1.5C lower for pH10 (14.7C vs 16C); used second zero and slope values,KRM
+20190114,6.918,-56.02,165.1,-6.9,-178.3,16.6,pass,used second zero and slope values,KRM
