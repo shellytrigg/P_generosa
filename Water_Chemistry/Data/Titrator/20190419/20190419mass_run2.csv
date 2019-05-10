@@ -1,0 +1,10 @@
+sample,mass,salinity,Sample.ID,Type,Notes
+JUNK,59.3458,29,JUNK,Junk,run on 20190509 (poisoned samples)
+H1_T5-A,60.6434,,H1_T1,1A,
+H1_T5-B,59.2615,,H1_T1,1B,
+H1_T6-A,59.3521,,H1_T2,2A,
+H1_T6-B,59.4087,,H1_T2,2B,
+H1_T7-A,59.5706,,H1_T3,3A,
+H1_T7-B,59.1877,,H1_T3,3B,
+H1_T8-A,59.5621,,H1_T4,4A,
+H1_T8-B,59.9743,,H1_T4,4B,

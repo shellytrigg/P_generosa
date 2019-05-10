@@ -24,3 +24,4 @@ Date,ZeroPoint,Slope,pH4 (171.4 mV),pH7 (0 mV),pH10 (-171.4 mV),temp,Calib.statu
 20190114,6.918,-56.02,165.1,-6.9,-178.3,16.6,pass,used second zero and slope values,KRM
 20190419,6.998,-56.32,169.2,-1.9,-173.9,17.5,pass,used second zero and slope values,KRM
 20190502,6.973,-56.36,168.7,-3.4,-175.6,17.6,pass,used second zero and slope values,KRM
+20190509,6.964,-57.33,171.1,-2.7,-175.6,22.1,pass,used second zero and slope values,KRM
