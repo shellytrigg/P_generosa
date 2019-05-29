@@ -1,0 +1,10 @@
+sample,mass,salinity,Sample.ID,Type,Notes
+JUNK,,29,JUNK,Junk,
+H1_T1-A,,,H1_T5,5A,
+H1_T1-B,,,H1_T5,5B,
+H1_T2-A,,,H1_T6,6A,
+H1_T2-B,,,H1_T6,6B,
+H1_T3-A,,,H1_T7,7A,
+H1_T3-B,,,H1_T7,7B,
+H1_T4-A,,,H1_T8,8A,
+H1_T4-B,,,H1_T8,8B,
