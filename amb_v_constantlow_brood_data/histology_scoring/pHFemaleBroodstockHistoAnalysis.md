@@ -1,0 +1,74 @@
+pH Female Broodstock Histology Analysis
+================
+Shelly Trigg
+9/24/2019
+
+Load libraries
+
+``` r
+library(readxl)
+library(ggplot2)
+```
+
+Read in data
+
+``` r
+female_data <- read_xlsx("HistologyScores.xlsx", sheet = 1)
+```
+
+Plot percent follicle area for each treatment group
+
+``` r
+ggplot(data = female_data, aes(x = pH,y = perc_follicle_area, group = as.factor(pH), fill = pH)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.2) + geom_jitter(shape =16, position= position_jitter(0.1)) + ylab("follicle area (%)") + theme_bw()
+```
+
+![](pHFemaleBroodstockHistoAnalysis_files/figure-markdown_github/follicle%20area%20plot-1.png)
+
+Run wilcox test to see if follicle area is significantly different
+
+``` r
+pH6.8 <- subset(female_data, pH == "6.8", perc_follicle_area, drop = TRUE)
+pHamb <- subset(female_data, pH == "amb", perc_follicle_area, drop = TRUE)
+wt <- wilcox.test(pH6.8, pHamb)
+print(wt$p.value)
+```
+
+    ## [1] 0.3884116
+
+Plot percent egg area for each treatment group
+
+``` r
+ggplot(data = female_data, aes(x = pH,y = perc_egg_area, group = as.factor(pH), fill = pH)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.2) + geom_jitter(shape =16, position= position_jitter(0.1)) + ylab("egg area (%)") + theme_bw()
+```
+
+![](pHFemaleBroodstockHistoAnalysis_files/figure-markdown_github/egg%20area%20plot-1.png)
+
+Run wilcox test to see if egg area is significantly different
+
+``` r
+pH6.8 <- subset(female_data, pH == "6.8", perc_egg_area, drop = TRUE)
+pHamb <- subset(female_data, pH == "amb", perc_egg_area, drop = TRUE)
+wt <- wilcox.test(pH6.8, pHamb)
+print(wt$p.value)
+```
+
+    ## [1] 0.1446553
+
+Plot egg:follicle ratio for each treatment group
+
+``` r
+ggplot(data = female_data, aes(x = pH,y = follicle_egg_ratio, group = as.factor(pH), fill = pH)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.2) + geom_jitter(shape =16, position= position_jitter(0.1)) + ylab("egg:follicle ratio") + theme_bw()
+```
+
+![](pHFemaleBroodstockHistoAnalysis_files/figure-markdown_github/egg-follicle%20ratio%20plot-1.png)
+
+Run wilcox test to see if egg:follicle ratio is significantly different
+
+``` r
+pH6.8 <- subset(female_data, pH == "6.8", follicle_egg_ratio, drop = TRUE)
+pHamb <- subset(female_data, pH == "amb", follicle_egg_ratio, drop = TRUE)
+wt <- wilcox.test(pH6.8, pHamb)
+print(wt$p.value)
+```
+
+    ## [1] 0.9546454
