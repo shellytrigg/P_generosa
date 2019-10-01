@@ -159,7 +159,7 @@ ggplot(CALC.table, aes(x = Parental.history,y = resp.RAW.µgLhr, fill = Sw.Condi
 **Violin plots with boxplot insets and jitter points for non-normalized data**
 
 ``` r
-ggplot(CALC.table, aes(x = hist.curr.treat,y = resp.RAW.µgLhr, fill = Sw.Condition)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.15) + geom_jitter(shape =16, size = 2,position= position_jitter(0.05)) +facet_wrap(~Date) + theme_bw() + ggtitle("Non-normalized respirometry data") + ylab("ug O2/L*hr") + xlab("parental_current treatment")
+ggplot(CALC.table, aes(x = hist.curr.treat,y = resp.RAW.µgLhr, fill = Sw.Condition)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.15) + geom_jitter(shape =16, size = 2,position= position_jitter(0.05)) +facet_wrap(~Date) + theme_bw() + ggtitle("Non-normalized respirometry data") + ylab("ug O2/L*hr") + xlab("parental_current treatment") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ![](Resp.Calculations.ST_files/figure-markdown_github/unnamed-chunk-9-1.png)
@@ -216,7 +216,7 @@ ggplot(CALC.table, aes(x = Parental.history,y = resp.shell, fill = Sw.Condition)
 **Violin plots with boxplot insets and jitter points for shell length-normalized data**
 
 ``` r
-ggplot(CALC.table, aes(x = hist.curr.treat,y = resp.shell, fill = Sw.Condition)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.15) + geom_jitter(shape =16, size = 2,position= position_jitter(0.05)) +facet_wrap(~Date) + theme_bw() + ggtitle("Respirometry data normalized by shell length") + ylab("ug O2/L*hr*cm.shell.length") + xlab("parental_current treatment")
+ggplot(CALC.table, aes(x = hist.curr.treat,y = resp.shell, fill = Sw.Condition)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.15) + geom_jitter(shape =16, size = 2,position= position_jitter(0.05)) +facet_wrap(~Date) + theme_bw() + ggtitle("Respirometry data normalized by shell length") + ylab("ug O2/L*hr*cm.shell.length") + xlab("parental_current treatment") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ![](Resp.Calculations.ST_files/figure-markdown_github/unnamed-chunk-14-1.png)
@@ -273,7 +273,7 @@ ggplot(CALC.table, aes(x = Parental.history,y = resp.weight, fill = Sw.Condition
 **Violin plots with boxplot insets and jitter points for wet weight-normalized data**
 
 ``` r
-ggplot(CALC.table, aes(x = hist.curr.treat,y = resp.weight, fill = Sw.Condition)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.15) + geom_jitter(shape =16, size = 2,position= position_jitter(0.05)) +facet_wrap(~Date) + theme_bw() + ggtitle("Respirometry data normalized by wet weight") + ylab("ug O2/L*hr*gram.wet.weight") + xlab("parental_current treatment")
+ggplot(CALC.table, aes(x = hist.curr.treat,y = resp.weight, fill = Sw.Condition)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.15) + geom_jitter(shape =16, size = 2,position= position_jitter(0.05)) +facet_wrap(~Date) + theme_bw() + ggtitle("Respirometry data normalized by wet weight") + ylab("ug O2/L*hr*gram.wet.weight") + xlab("parental_current treatment") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 ![](Resp.Calculations.ST_files/figure-markdown_github/unnamed-chunk-19-1.png)
