@@ -348,3 +348,74 @@ TukeyHSD(c)
     ## amb:var.low-var.low:amb     -278.01249 -529.28160 -26.743368 0.0276120
     ## var.low:var.low-var.low:amb -260.22380 -511.49291  -8.954677 0.0410721
     ## var.low:var.low-amb:var.low   17.78869 -233.48043 269.057809 0.9969344
+
+Plotting shell length and wet weight over time
+
+``` r
+#convert size data to df
+Size.Info <- data.frame(Size.Info)
+#convert classes to numeric
+Size.Info$Wet.weight.g <- as.numeric(Size.Info$Wet.weight.g)
+```
+
+    ## Warning: NAs introduced by coercion
+
+``` r
+Size.Info$Length <- as.numeric(Size.Info$Length)
+```
+
+    ## Warning: NAs introduced by coercion
+
+``` r
+#remove lines with NA 
+Size.Info_noNA <- Size.Info[which(Size.Info$Parental.history!= "NA"),]
+
+#plot length x time boxplots
+ggplot(Size.Info_noNA, aes(x = Parental.history, y = Length, fill = Sw.Condition)) + geom_boxplot() + facet_wrap(~Date) + theme_bw() + ggtitle("Shell length over time") + ylab("shell length (cm)")
+```
+
+![](Resp.Calculations.ST_files/figure-markdown_github/unnamed-chunk-23-1.png)
+
+``` r
+#plot wet.weight x time boxplots
+ggplot(Size.Info_noNA, aes(x = Date, y = Wet.weight.g, color = Parental.history,fill = Sw.Condition)) + geom_boxplot() + theme_bw() + ggtitle("Wet weight over time") + ylab("wet weight (g)")
+```
+
+    ## Warning: Removed 1 rows containing non-finite values (stat_boxplot).
+
+![](Resp.Calculations.ST_files/figure-markdown_github/unnamed-chunk-23-2.png)
+
+``` r
+#get averages for each group and date, then plot 
+
+#create a group variable for combining parental history and sw.condition information
+Size.Info_noNA$group <- paste(Size.Info_noNA$Parental.history,Size.Info_noNA$Sw.Condition, sep = "_")
+
+#create a data frame that contains data grouped by date, parental history, and sw. condition
+test <- group_by(Size.Info_noNA, Date, Parental.history, Sw.Condition)
+
+#For shell length, calculate average, standard deviation, and standard error
+test_mean <- summarize(test, LengthAvg = mean(Length), LengthSD = sd(Length), LengthSE = sd(Length)/(sqrt(n())))
+test_mean$group <- paste(test_mean$Parental.history, test_mean$Sw.Condition, sep = "_")
+
+#set dodge position
+pd <- position_dodge(0.78)
+
+#Plot shell length average over time as dots with error bars
+ggplot(test_mean, aes(x = Date, y = LengthAvg, color = group)) + geom_point(position = pd) + geom_errorbar(data = test_mean, aes(ymin = LengthAvg-LengthSE, ymax = LengthAvg+LengthSE), width = 0.1, position = pd) + theme_bw()+ ggtitle("mean shell length over time (error bars = SE)")
+```
+
+![](Resp.Calculations.ST_files/figure-markdown_github/unnamed-chunk-23-3.png)
+
+``` r
+#For wet weight, calculate average, standard deviation, and standard error
+test_Wtmean <- summarize(test, WtAvg = mean(Wet.weight.g, na.rm = TRUE), WtSD = sd(Wet.weight.g, na.rm = TRUE), WtSE = sd(Wet.weight.g, na.rm = TRUE)/(sqrt(n())))
+
+#For wet weight data, create a group variable for combining parental history and sw.condition information
+test_Wtmean$group <- paste(test_Wtmean$Parental.history, test_Wtmean$Sw.Condition, sep = "_")
+
+#Plot wet weight average over time as dots with error bars
+ggplot(test_Wtmean, aes(x = Date, y = WtAvg, color = group)) + geom_point(position = pd) + geom_errorbar(data = test_Wtmean, aes(ymin = WtAvg-WtSE, ymax = WtAvg+WtSE), width = 0.1, position = pd) + theme_bw() + ggtitle("mean wet weight over time (error bars = SE)")
+```
+
+![](Resp.Calculations.ST_files/figure-markdown_github/unnamed-chunk-23-4.png)
