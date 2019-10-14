@@ -399,10 +399,10 @@ test_mean <- summarize(test, LengthAvg = mean(Length), LengthSD = sd(Length), Le
 test_mean$group <- paste(test_mean$Parental.history, test_mean$Sw.Condition, sep = "_")
 
 #set dodge position
-pd <- position_dodge(0.78)
+pd <- position_dodge(0.4)
 
 #Plot shell length average over time as dots with error bars
-ggplot(test_mean, aes(x = Date, y = LengthAvg, color = group)) + geom_point(position = pd) + geom_errorbar(data = test_mean, aes(ymin = LengthAvg-LengthSE, ymax = LengthAvg+LengthSE), width = 0.1, position = pd) + theme_bw()+ ggtitle("mean shell length over time (error bars = SE)")
+ggplot(test_mean, aes(x = Date, y = LengthAvg, color = group, group = group)) + geom_point(position = pd) + geom_errorbar(data = test_mean, aes(ymin = LengthAvg-LengthSE, ymax = LengthAvg+LengthSE), width = 0.1, position = pd, linetype = "dashed") + geom_line(position = pd) + theme_bw()+ ggtitle("mean shell length over time (error bars = SE)")
 ```
 
 ![](Resp.Calculations.ST_files/figure-markdown_github/unnamed-chunk-23-3.png)
@@ -415,7 +415,7 @@ test_Wtmean <- summarize(test, WtAvg = mean(Wet.weight.g, na.rm = TRUE), WtSD = 
 test_Wtmean$group <- paste(test_Wtmean$Parental.history, test_Wtmean$Sw.Condition, sep = "_")
 
 #Plot wet weight average over time as dots with error bars
-ggplot(test_Wtmean, aes(x = Date, y = WtAvg, color = group)) + geom_point(position = pd) + geom_errorbar(data = test_Wtmean, aes(ymin = WtAvg-WtSE, ymax = WtAvg+WtSE), width = 0.1, position = pd) + theme_bw() + ggtitle("mean wet weight over time (error bars = SE)")
+ggplot(test_Wtmean, aes(x = Date, y = WtAvg, color = group, group = group)) + geom_point(position = pd) + geom_errorbar(data = test_Wtmean, aes(ymin = WtAvg-WtSE, ymax = WtAvg+WtSE), width = 0.1, position = pd, linetype = "dashed") + geom_line(position = pd) + theme_bw() + ggtitle("mean wet weight over time (error bars = SE)")
 ```
 
 ![](Resp.Calculations.ST_files/figure-markdown_github/unnamed-chunk-23-4.png)
