@@ -81,6 +81,12 @@ for(i in 1:nrow(CALC.table)) {
   CALC.table$resp.shell[i] <- CALC.table$resp.RAW.µgLhr[i]/CALC.table[i,"Length"] #per cm shell length
   CALC.table$resp.weight[i] <- CALC.table$resp.RAW.µgLhr[i]/CALC.table[i,"Wet.weight.g"] #per gram wet weight
 }
+
+
+#remove wells with poorly modeled data
+CALC.table$uniqID <- paste(CALC.table$Date,CALC.table$Run, CALC.table$SDR_position, sep = "_")
+CALC.table <- CALC.table[which(CALC.table$uniqID != "09.19.19_1_A6" & CALC.table$uniqID != "09.19.19_1_B3" & CALC.table$uniqID != "09.19.19_1_B4" & CALC.table$uniqID != "09.19.19_1_C3" & CALC.table$uniqID != "10.03.19_1_C4" & CALC.table$uniqID != "10.18.19_1_A6" & CALC.table$uniqID != "10.18.19_1_B4" & CALC.table$uniqID != "10.18.19_2_A3" & CALC.table$uniqID != "10.18.19_3_D1"& CALC.table$uniqID != "10.18.19_3_A1"),]
+
 ```
 
 
@@ -169,7 +175,7 @@ ggplot(CALC.table, aes(x = Parental.history,y = resp.weight, fill = Sw.Condition
 
 **Violin plots with boxplot insets and jitter points for wet weight-normalized data**
 ```{r}
-ggplot(CALC.table, aes(x = hist.curr.treat,y = resp.weight, fill = Sw.Condition)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.15) + geom_jitter(shape =16, size = 2,position= position_jitter(0.05)) +facet_wrap(~Date) + theme_bw() + ggtitle("Respirometry data normalized by wet weight") + ylab("ug O2/L*hr*gram.wet.weight") + xlab("parental_current treatment") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggplot(CALC.table, aes(x = hist.curr.treat,y = resp.weight, fill = Sw.Condition)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.15) + geom_jitter(shape =16, size = 2,position= position_jitter(0.05)) +facet_wrap(~Date, scale = "free") + theme_bw() + ggtitle("Respirometry data normalized by wet weight") + ylab("ug O2/L*hr*gram.wet.weight") + xlab("parental_current treatment") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 **anova on wet weight-normalized data on Day 0 (Sept. 5 2019, before treatment started)**
@@ -195,6 +201,22 @@ summary(c)
 TukeyHSD(c)
 ```
 
+
+**anova on wet weight-normalized data on Day 14 (Oct. 3 2019)**
+```{r}
+#for Sept. 19 trial 
+d <- aov(resp.weight ~ Sw.Condition*Parental.history, data = CALC.table[which(CALC.table$Date == "10.03.19"),])
+summary(d)
+```
+
+**anova on wet weight-normalized data on Day 14 (Oct. 18 2019)**
+```{r}
+#for Sept. 19 trial 
+e <- aov(resp.weight ~ Sw.Condition*Parental.history, data = CALC.table[which(CALC.table$Date == "10.18.19"),])
+summary(e)
+TukeyHSD(e)
+```
+
 Plotting shell length and wet weight over time
 ```{r}
 #convert size data to df
@@ -207,6 +229,8 @@ Size.Info_noNA <- Size.Info[which(Size.Info$Parental.history!= "NA"),]
 
 #plot length x time boxplots
 ggplot(Size.Info_noNA, aes(x = Parental.history, y = Length, fill = Sw.Condition)) + geom_boxplot() + facet_wrap(~Date) + theme_bw() + ggtitle("Shell length over time") + ylab("shell length (cm)")
+
+ggplot(Size.Info_noNA, aes(x = Date, y = Length, color = Parental.history,fill = Sw.Condition)) + geom_boxplot() + theme_bw() + ggtitle("Shell length over time") + ylab("shell length (cm)")
 
 #plot wet.weight x time boxplots
 ggplot(Size.Info_noNA, aes(x = Date, y = Wet.weight.g, color = Parental.history,fill = Sw.Condition)) + geom_boxplot() + theme_bw() + ggtitle("Wet weight over time") + ylab("wet weight (g)")
