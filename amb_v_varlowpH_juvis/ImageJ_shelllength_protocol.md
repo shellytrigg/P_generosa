@@ -30,4 +30,4 @@ For each image:
 ### Notes:
 - only count animals that look alive. There is lots of debris, shrivled up dead animals. Look for plump siphons (brown part) and rounder looking animals. 
 
-- canDetermine a way to keep track of animals you've measured as to not measure the same animal twice. Maybe it's possible to draw quadrants in the photo? Or number the animals?
+- Determine a way to keep track of animals you've measured as to not measure the same animal twice. Maybe it's possible to draw quadrants in the photo? Or number the animals?
