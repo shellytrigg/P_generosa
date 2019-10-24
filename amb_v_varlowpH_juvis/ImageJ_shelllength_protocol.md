@@ -26,4 +26,8 @@ For each image:
 
 8. Create a column for length(cm) and calculate length in cm for each measurement.
 
-** Determine a way to keep track of animals you've measured as to not measure the same animal twice. Maybe it's possible to draw quadrants in the photo? Or number the animals?
+
+### Notes:
+- only count animals that look alive. There is lots of debris, shrivled up dead animals. Look for plump siphons (brown part) and rounder looking animals. 
+
+- canDetermine a way to keep track of animals you've measured as to not measure the same animal twice. Maybe it's possible to draw quadrants in the photo? Or number the animals?
