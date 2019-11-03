@@ -31,3 +31,16 @@ For each image:
 - only count animals that look alive. There is lots of debris, shrivled up dead animals. Look for plump siphons (brown part) and rounder looking animals. 
 
 - Determine a way to keep track of animals you've measured as to not measure the same animal twice. Maybe it's possible to draw quadrants in the photo? Or number the animals?
+
+	- To make photo into quadrants: 
+		a. After opening the image, go to menu bar Image -> Stacks -> Tools -> Montage to Stack
+		b. Set Columns to 2
+		c. Set Rows to 2
+		d. Click ok
+		e. Now, the image is split into quadrants -- tip: use the scroll of mouse to go through each of the four quadrants more easily.
+	
+	- To label each animal by number: 
+		a. Go to menu Analyze -> Set Measurements
+		b. Select Add to overlay checkbox
+		c. Click ok
+		d. Now, once an animal is measured, a number will pop up where the measurement was placed, which corresponds with the measurement information for that specific animal. 
