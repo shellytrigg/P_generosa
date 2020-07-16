@@ -1,0 +1,156 @@
+---
+title: "pH Female Broodstock Histology Analysis"
+author: "Shelly Trigg"
+date: "7/15/2020"
+output: rmarkdown::github_document
+---
+
+Load libraries
+```{r}
+library(ggplot2)
+library(ggpubr)
+library(rstatix)
+```
+
+Read in data
+```{r}
+female_data <- read.csv("20200714_Female_Gonad - Results.csv", stringsAsFactors = F)
+```
+
+calculate proportions
+```{r}
+female_data$prop_egg <- (female_data$egg.area / female_data$total.area..um.) *100
+
+female_data$prop_egg_based_inv <- (female_data$egg.area..based.on.ind.eggs. / female_data$total.area..um.) *100
+
+female_data$prop_no_tissue <- (female_data$no.tissue.area / female_data$total.area..um.) *100
+
+female_data$prop_follicle <- (female_data$follicle.area / female_data$total.area..um.)*100
+
+female_data$prop_cnx_tissue_ea <- (female_data$connective.tissue.area..egg.based.collective./ female_data$total.area..um.)* 100
+
+female_data$prop_cnx_tissue_indve <- (female_data$connective.tissue.area..egg.based.on.indiv./ female_data$total.area..um.)*100
+
+female_data$date <- substr(female_data$file_name,1,8)
+
+female_data$pH_date <- paste(female_data$date, female_data$pH, sep = "_")
+
+```
+
+convert to long format
+
+```{r}
+female_data_STACKED <- tidyr::gather(female_data,"metric", "um", 5:(ncol(female_data)-2))
+
+female_data_STACKED$um <- as.numeric(female_data_STACKED$um)
+```
+
+filter data for comparing
+```{r}
+female_data_STACKED_filt <- female_data_STACKED[grep("prop|number|mean", female_data_STACKED$metric),]
+
+```
+
+Plot each metric x treatment group
+```{r}
+
+#plot january samples
+ggplot(data = female_data_STACKED_filt[which(female_data_STACKED_filt$date == "20190123"),],aes(x = pH, y = um, color = pH)) + geom_boxplot(outlier.shape = NA) + facet_wrap(~metric, scale = "free") + geom_jitter(alpha=0.8,shape =16,size = 2, position= position_jitter(0.1)) + theme_bw() + ggtitle("20190123_samples; ambient pH (n = 5) x low pH (n = 3)")
+
+#plot feb samples
+ggplot(data = female_data_STACKED_filt[which(female_data_STACKED_filt$date == "20190221"),],aes(x = pH, y = um, color = pH)) + geom_boxplot(outlier.shape = NA) + facet_wrap(~metric, scale = "free") + geom_jitter(alpha=0.8,shape =16,size = 2, position= position_jitter(0.1)) + theme_bw() + ggtitle("20190221_samples; ambient pH (n = 8) x low pH (n = 3)")
+
+#plot all samples together
+ggplot(data = female_data_STACKED_filt,aes(x = pH, y = um)) +geom_boxplot(aes(color = pH), outlier.shape = NA) + facet_wrap(~metric, scale = "free") + geom_jitter(aes(color = pH),alpha = 0.8,shape =16, size = 2,position= position_jitter(0.2)) + theme_bw() + ggtitle("all samples; ambient pH (n = 13) x low pH (n = 6)")
+```
+
+Run wilcox test to see if follicle area is significantly different
+```{r}
+
+wt <- female_data_STACKED_filt %>% group_by(metric) %>% wilcox_test(um ~ pH )
+
+wt <- wt %>% add_xy_position(x = "pH", )
+
+ggboxplot(female_data_STACKED_filt, x = "pH", y = "um", color = "pH",facet.by = "metric", scales = "free", add = "jitter") + stat_pvalue_manual(wt,bracket.nudge.y = -2,label = "{p}")+
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.1)))
+
+
+wwt <- female_data_STACKED_filt %>% group_by(date,metric) %>% do(broom::tidy(wilcox.test(um ~ pH,data = . )))
+
+
+
+#run stats on all data regardless of date
+wt <- female_data_STACKED_filt %>% group_by(metric) %>% do(broom::tidy(wilcox.test(um ~ pH,data = . )))
+
+
+#run stats on all data regardless of date
+Tt <- female_data_STACKED_filt %>% group_by(metric) %>% do(broom::tidy(t.test(um ~ pH,data = . )))
+
+aovt <- female_data_STACKED_filt %>% group_by(metric) %>% do(broom::tidy(aov(um ~ pH,data = . )))
+
+glmt <- female_data_STACKED_filt %>% group_by(metric) %>% do(broom::tidy(glm(um ~ pH,data = . )))
+
+```
+
+Plot percent follicle area for each tank
+```{r follicle area plot by tank}
+ggplot(data = female_data, aes(x = tank,y = perc_follicle_area, group = as.factor(tank), fill = pH)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.2) + geom_jitter(shape =16, position= position_jitter(0.1)) + ylab("follicle area (%)") + theme_bw()
+```
+
+anova to see if there is a tank or a pH effect
+```{r}
+model <- aov(perc_follicle_area ~ pH * tank, data = female_data)
+summary(model)
+```
+
+
+Plot percent egg area for each treatment group
+```{r egg area plot}
+ggplot(data = female_data, aes(x = pH,y = perc_egg_area, group = as.factor(pH), fill = pH)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.2) + geom_jitter(shape =16, position= position_jitter(0.1)) + ylab("egg area (%)") + theme_bw()
+```
+
+Run wilcox test to see if egg area is significantly different
+```{r}
+pH6.8 <- subset(female_data, pH == "6.8", perc_egg_area, drop = TRUE)
+pHamb <- subset(female_data, pH == "amb", perc_egg_area, drop = TRUE)
+wt <- wilcox.test(pH6.8, pHamb)
+print(wt$p.value)
+```
+
+Plot percent egg area for each tank
+```{r egg area plot by tank}
+ggplot(data = female_data, aes(x = tank,y = perc_egg_area, group = as.factor(tank), fill = pH)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.2) + geom_jitter(shape =16, position= position_jitter(0.1)) + ylab("egg area (%)") + theme_bw()
+```
+
+anova to see if there is a tank or a pH effect
+```{r}
+model <- aov(perc_egg_area ~ pH * tank, data = female_data)
+summary(model)
+```
+
+
+
+Plot egg:follicle ratio for each treatment group
+```{r egg-follicle ratio plot }
+ggplot(data = female_data, aes(x = pH,y = follicle_egg_ratio, group = as.factor(pH), fill = pH)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.2) + geom_jitter(shape =16, position= position_jitter(0.1)) + ylab("egg:follicle ratio") + theme_bw()
+```
+
+Run wilcox test to see if egg:follicle ratio is significantly different
+```{r}
+pH6.8 <- subset(female_data, pH == "6.8", follicle_egg_ratio, drop = TRUE)
+pHamb <- subset(female_data, pH == "amb", follicle_egg_ratio, drop = TRUE)
+wt <- wilcox.test(pH6.8, pHamb)
+print(wt$p.value)
+
+```
+
+Plot egg:follicle ratio for each tank
+```{r egg:follicle ratio plot by tank}
+ggplot(data = female_data, aes(x = tank,y = follicle_egg_ratio, group = as.factor(tank), fill = pH)) + geom_violin(trim = FALSE) + geom_boxplot(width = 0.2) + geom_jitter(shape =16, position= position_jitter(0.1)) + ylab("egg:follicle ratio") + theme_bw()
+```
+
+anova to see if there is a tank or a pH effect
+```{r}
+model <- aov(follicle_egg_ratio ~ pH * tank, data = female_data)
+summary(model)
+```
