@@ -1,0 +1,55 @@
+---
+title: "Untitled"
+author: "Shelly Trigg"
+date: "8/6/2020"
+output: html_document
+---
+
+load libraries
+```{r}
+library(ggplot2)
+
+```
+
+
+read in data
+```{r}
+qPCR_results <- read.csv("sam_2020-08-06_05-44-24_BR006896-Quantification_Cq_Results.csv", stringsAsFactors = F)
+
+
+meta <- read.csv("meta_data.csv", stringsAsFactors = )
+```
+
+subset out cq mean, sd, and sample 
+```{r}
+qPCR_results_subset <- unique(qPCR_results[,c("Sample","Target", "Cq.Mean", "Cq.Std..Dev")])
+```
+
+remove lines that had no amplification
+```{r}
+qPCR_results_subset<- qPCR_results_subset[which(qPCR_results_subset$Cq.Mean >0),]
+```
+
+combine meta data with qPCR data
+```{r}
+qPCR_results_subset <- merge(meta,qPCR_results_subset, by = "Sample")
+
+```
+
+plot data
+
+```{r}
+qPCR_results_subset_known <- qPCR_results_subset[which(qPCR_results_subset$Target == "APLP" & qPCR_results_subset$Stage !="Unk"),]
+
+qPCR_results_subset_known$SDmin <- qPCR_results_subset_known$Cq.Mean - qPCR_results_subset_known$Cq.Std..Dev
+
+qPCR_results_subset_known$SDmax <- qPCR_results_subset_known$Cq.Mean + qPCR_results_subset_known$Cq.Std..Dev
+
+jpeg("APLP_qPCR_results_known_samples.jpg", width = 6, height = 6, units = "in", res = 300 )
+ggplot(qPCR_results_subset_known, aes(as.numeric(Stage),Cq.Mean,color = Sex, label = Sample)) + geom_pointrange(aes(ymin=SDmin, ymax=SDmax)) + xlab("maturation stage (from histo)") + geom_text(size = 2,nudge_x = 0.3) + theme_bw() + ggtitle("2020-08-05 APLP qPCR in known samples")
+dev.off()
+```
+
+
+
+
