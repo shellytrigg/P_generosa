@@ -1,8 +1,8 @@
 ---
-title: "Untitled"
+title: "Ca Assay Analysis"
 author: "Shelly Trigg"
-date: "12/3/2020"
-output: html_document
+date: "12/7/2020"
+output: github_document 
 ---
 
 load libraries
@@ -135,7 +135,7 @@ ca_data_sum_corrected[which(ca_data_sum_corrected$ID == "01/23-037L"),"conc"] <-
 match up with treatment and time info
 ```{r}
 #first check ID is the exact same as the label
-View(sample_info[which(sample_info$ID!= sample_info$Label),])
+head(sample_info[which(sample_info$ID!= sample_info$Label),])
 
 #now create ID column to match with plate reader data
 sample_info$ID <- paste0(substr(sample_info$Date,5,6),"/",substr(sample_info$Date,7,8),"-",sample_info$Label)
@@ -162,7 +162,16 @@ ggplot(ca_data_sum_corrected_info, aes(x = factor(Date), y = conc, group = inter
 
 ```
 
+run aov
 
+
+```{r}
+aov_data <- aov(conc ~ Treatment * Date, data = ca_data_sum_corrected_info)
+summary(aov_data)
+
+```
+
+Plot data but separate females from males
 ```{r}
 ggplot(ca_data_sum_corrected_info, aes(x = factor(Date), y = conc, group = interaction(Sex,Treatment,factor(Date)),color = Treatment, fill = Sex)) + geom_boxplot(outlier.shape = NA) + geom_point(shape = ca_data_sum_corrected_info$name,size=1,position = position_jitterdodge(jitter.width = 0.1)) + theme_bw() + labs(x = "Date", y = "Calcium conc. (mg/dL)") + scale_shape_manual(values=1:nlevels(ca_data_sum_corrected_info$name)) + scale_color_manual(values = c("gray50", "chocolate")) + scale_fill_manual(values = c("wheat1","lightblue1"))
 
@@ -171,19 +180,3 @@ ggplot(ca_data_sum_corrected_info, aes(x = factor(Date), y = conc, group = inter
 
 
 
-run aov
-
-
-```{r}
-aov_data <- aov(conc ~ Treatment * Date, data = ca_data_sum_corrected_info)
-summary(aov_data)
-
-#               Df Sum Sq Mean Sq F value Pr(>F)  
-#Treatment       1   2.47  2.4712   3.717 0.0574 .
-#Date            1   0.10  0.1040   0.156 0.6935  
-#Treatment:Date  1   0.49  0.4912   0.739 0.3926  
-#Residuals      81  53.86  0.6649                 
-#---
-#Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-```
