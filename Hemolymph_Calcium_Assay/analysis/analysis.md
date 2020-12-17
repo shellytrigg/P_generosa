@@ -295,3 +295,64 @@ ggplot(ca_data_sum_corrected_info, aes(x = factor(Date), y = conc, group = inter
 ```
 
 ![](analysis_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+Convert date to days
+
+``` r
+#create a column for days to go into 
+ca_data_sum_corrected_info$days <- NA
+
+
+for(i in 1:nrow(ca_data_sum_corrected_info)){
+  if(ca_data_sum_corrected_info$Date[i] == "20181119"){
+    ca_data_sum_corrected_info$days[i] <- "7"
+  }
+  if(ca_data_sum_corrected_info$Date[i] == "20190104"){
+    ca_data_sum_corrected_info$days[i] <- "53"
+  }
+  if(ca_data_sum_corrected_info$Date[i] == "20190123"){
+    ca_data_sum_corrected_info$days[i] <- "72"
+  }
+  if(ca_data_sum_corrected_info$Date[i] == "20190221"){
+    ca_data_sum_corrected_info$days[i] <- "93 + 8 day recovery"
+  }
+}
+
+ca_data_sum_corrected_info$days <- factor(ca_data_sum_corrected_info$days, levels = c("7", "53", "72", "93 + 8 day recovery"))
+
+count_summary <- ca_data_sum_corrected_info %>% group_by(Sex,days) %>% count()
+```
+
+Separate plots for males and females
+
+``` r
+ggplot(ca_data_sum_corrected_info, aes(x = days, y = conc, group = interaction(Sex,Treatment,days),fill = Treatment)) + geom_boxplot(outlier.shape = NA) + geom_point(size=1,shape = 1,position = position_jitterdodge(jitter.width = 0.1)) +  theme_bw() + theme(axis.text.x = element_text(angle=90,hjust=0.95,vjust=0.2))  + labs(x = "Days", y = "Calcium conc. (mg/dL)") + facet_wrap(~Sex)
+```
+
+![](analysis_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+run aov for female data
+
+``` r
+f_aov_data <- aov(conc ~ Treatment * days, data = ca_data_sum_corrected_info[which(ca_data_sum_corrected_info$Sex == "F"),])
+summary(f_aov_data)
+```
+
+    ##                Df Sum Sq Mean Sq F value Pr(>F)
+    ## Treatment       1  1.233  1.2326   2.037  0.163
+    ## days            3  1.279  0.4262   0.704  0.557
+    ## Treatment:days  3  0.405  0.1350   0.223  0.880
+    ## Residuals      31 18.755  0.6050
+
+run aov for male data
+
+``` r
+m_aov_data <- aov(conc ~ Treatment * days, data = ca_data_sum_corrected_info[which(ca_data_sum_corrected_info$Sex == "M"),])
+summary(m_aov_data)
+```
+
+    ##                Df Sum Sq Mean Sq F value Pr(>F)
+    ## Treatment       1  1.231  1.2310   1.614  0.212
+    ## days            3  2.850  0.9500   1.245  0.307
+    ## Treatment:days  3  0.401  0.1338   0.175  0.912
+    ## Residuals      38 28.991  0.7629
