@@ -53,6 +53,11 @@ dt$parental_currenttreatment <- paste(dt$Parental.history,dt$Sw.Condition,sep = 
 
 #change column name so there aren't problems
 colnames(dt)[8] <- "Length.cm"
+
+#make parental history more descriptive
+dt$Parental.history <- ifelse(dt$Parental.history == "amb","ambient parents","var.low.pH parents")
+
+
 ```
 
 
@@ -75,8 +80,18 @@ plot distributions of shell length per experimental group
 ggplot(dt) + geom_density(aes(Length.cm, group = parental_currenttreatment, color = parental_currenttreatment, fill = parental_currenttreatment), alpha = 0.2) + theme_bw() + ggtitle("Size Distribution of Juvenile Geoduck Treatment Groups")
 
 
+ggplot(dt, aes(x = parental_currenttreatment,y = Length.cm, group = parental_currenttreatment, fill = parental_currenttreatment, alpha = 0.2)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.2), size = 0.5) +  theme_bw() + ggtitle("Size Distribution of Juvenile Geoduck Treatment Groups")
+
+ggplot(dt, aes(x = Sw.Condition,y = Length.cm, group = Sw.Condition, fill = Sw.Condition, alpha = 0.2)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.2), size = 0.5) +  theme_bw() + ggtitle("Size Distribution of Juvenile Geoduck Treatment Groups") + facet_wrap(~Parental.history) + scale_fill_manual(values = c("#00BFC4","#F8766D"))  + theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) + labs(fill = "juvenile pH exposure" , y = "shell length (cm)")
+
+
 jpeg("Density Plot of Experimental Groups.jpeg", width = 8, height = 8, units = "in", res = 300)
 # plot density graph
-ggplot(dt) + geom_density(aes(Length.cm, group = parental_currenttreatment, color = parental_currenttreatment, fill = parental_currenttreatment), alpha = 0.2) + theme_bw() + ggtitle("Size Distribution of Juvenile Geoduck Treatment Groups")
+ggplot(dt) + geom_density(aes(Length.cm, group = Sw.Condition, color = Sw.Condition, fill = Sw.Condition), alpha = 0.2) + theme_bw() + ggtitle("Size Distribution of Juvenile Geoduck Treatment Groups") + facet_wrap(~Parental.history) 
 dev.off()
+```
+```{r}
+size_aov <- aov(Length.cm ~ Parental.history * Sw.Condition, data = dt)
+summary(size_aov)
+TukeyHSD(aov(Length.cm ~ Parental.history * Sw.Condition, data = dt))
 ```

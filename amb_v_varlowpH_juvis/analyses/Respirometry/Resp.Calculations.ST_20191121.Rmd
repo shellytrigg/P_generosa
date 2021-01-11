@@ -91,6 +91,8 @@ for(i in 1:nrow(CALC.table)) {
 CALC.table$uniqID <- paste(CALC.table$Date,CALC.table$Run, CALC.table$SDR_position, sep = "_")
 CALC.table <- CALC.table[which(CALC.table$uniqID != "09.19.19_1_A6" & CALC.table$uniqID != "09.19.19_1_B3" & CALC.table$uniqID != "09.19.19_1_B4" & CALC.table$uniqID != "09.19.19_1_C3" & CALC.table$uniqID != "10.03.19_1_C4" & CALC.table$uniqID != "10.18.19_1_A6" & CALC.table$uniqID != "10.18.19_1_B4" & CALC.table$uniqID != "10.18.19_2_A3" & CALC.table$uniqID != "10.18.19_3_D1"& CALC.table$uniqID != "10.18.19_3_A1"),]
 
+#calculate days from date column
+CALC.table$days <- as.Date(CALC.table$Date, format = "%m.%d.%y") - as.Date("09.04.19", format = "%m.%d.%y")
 ```
 
 **checking normalization**
@@ -269,26 +271,65 @@ dev.off()
 
 **boxplots for wet weight-normalized resp data over time**
 ```{r}
-ggplot(CALC.table, aes(x = Date,y = resp.weight, fill = hist.curr.treat)) + geom_boxplot() + theme_bw() + ggtitle("Respirometry data normalized by wet weight") + ylab("ug O2/L*hr*gram.wet.weight") + geom_point(position = position_dodge(width = 0.75)) + xlab("Date") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+jpeg("MetabolicRateOverTimeNormToWetWeight.jpg", width = 6,height = 3, units = "in", res = 300)
+ggplot(CALC.table, aes(x = factor(days, levels = c(1,2,15,29,44)),y = resp.weight, group = interaction(Parental.history, Sw.Condition, days),fill = Sw.Condition, alpha = Parental.history)) + geom_boxplot(outlier.shape = NA) + geom_jitter(shape = 16, position = position_jitterdodge(jitter.width = 0.1)) + theme_bw() + labs(y = expression(paste("Respiration rate (ug ",O[2],  "/L*hr*gram)")), x ="days", fill = "juvenile pH exposure", alpha = "parental pH exposure") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_alpha_manual(values = c(1,0.4)) + scale_fill_manual(values = c("#00BFC4", "#F8766D"))
+dev.off()
 ```
+
+
+plot length over time
+```{r}
+
+ggplot(CALC.table, aes(x = factor(days, levels = c(1,2,15,29,44)),y = Length, group = interaction(Parental.history, Sw.Condition, days),fill = Sw.Condition, alpha = Parental.history)) + geom_boxplot(outlier.shape = NA) + geom_jitter(shape = 16, position = position_jitterdodge(jitter.width = 0.1)) + theme_bw() + labs(y = "shell length (um)", x ="days", fill = "juvenile pH exposure", alpha = "parental pH exposure") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_alpha_manual(values = c(1,0.4))
+
+
+```
+
 
 **aov of wet weight-normalized resp data over time**
 
 ```{r}
 #run anova for non-normalized data
 #for Sept. 5 trial
-resp.wt.3way.aov <- aov(resp.weight ~ Sw.Condition*Parental.history*Date, data = CALC.table[which(CALC.table$Date!="09.05.19"),])
-summary(resp.wt.aov)
-resp.wt.tuk <- TukeyHSD(aov(resp.weight ~ Sw.Condition*Parental.history, data = CALC.table))
-summary(resp.wt.tuk)
+resp.wt.3way.aov <- anova_test(resp.weight ~ Sw.Condition*Parental.history*days, data = CALC.table[which(CALC.table$Date!="09.05.19"),])
+
+resp.wt.3way.aov
+
+
+
+
+
+```
+
+decompose 3 way results
+```{r}
+#https://www.datanovia.com/en/lessons/anova-in-r/#three-way-independent-anova
+
+#evaluate the effect of juvenile pH expsosure and parental exposure on metabolic rate at each time point
+model  <- lm(resp.weight ~ days*Sw.Condition*Parental.history, data = CALC.table[which(CALC.table$Date!="09.05.19"),])
+
+CALC.table[which(CALC.table$Date!="09.05.19"),] %>% group_by(days) %>% anova_test(resp.weight ~ Sw.Condition*Parental.history, error = model)
+
+#calculate the simple simple main effect
+
+treatment.effect <- CALC.table[which(CALC.table$Date!="09.05.19"),] %>%
+  group_by(days, Parental.history) %>%
+  anova_test(resp.weight ~ Sw.Condition, error = model)
+treatment.effect
+```
+
+```{r}
+ggplot(CALC.table, aes(x = factor(days, levels = c(1,2,15,29,44)),y = resp.weight, group = interaction(Parental.history, Sw.Condition, days),fill = Sw.Condition, alpha = Parental.history)) + geom_boxplot(outlier.shape = NA) + geom_jitter(shape = 16, position = position_jitterdodge(jitter.width = 0.1)) + theme_bw() + labs(y = expression(paste("Respiration rate (ug ",O[2],  "/L*hr*gram)")), x ="days", fill = "juvenile pH exposure", alpha = "parental pH exposure") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + scale_alpha_manual(values = c(1,0.4)) + facet_wrap(~days, scales = "free")
+
 ```
 
 **glm**
 ```{r}
 #run glm for 10-18
-resp.glm <- glm(resp.weight ~ Parental.history*Sw.Condition, data = CALC.table[which(CALC.table$Date=="10.18.19"),])
+resp.glm <- glm(resp.weight ~ Parental.history*Sw.Condition*days, data = CALC.table[which(CALC.table$Date!="09.05.19"),])
+summary(aov(resp.glm))
 
-pchisq(c(114559-91439,55-52,lower.tail=FALSE))
+#pchisq(c(114559-91439,55-52,lower.tail=FALSE))
 
 ```
 
@@ -401,7 +442,7 @@ pd <- position_dodge(0.4)
 ggplot(test_mean, aes(x = Date, y = LengthAvg, color = group, group = group)) + geom_point(position = pd) + geom_errorbar(data = test_mean, aes(ymin = LengthAvg-LengthSE, ymax = LengthAvg+LengthSE), width = 0.1, position = pd, linetype = "dashed") + geom_line(position = pd) + theme_bw()+ ylab("mean shell length (cm)") +labs(color = "history_treatment", title ="mean shell length over time (error bars = SE)" )
 
 #For wet weight, calculate average, standard deviation, and standard error
-test_Wtmean <- summarize(test, WtAvg = mean(Wet.weight.g, na.rm = TRUE), WtSD = sd(Wet.weight.g, na.rm = TRUE), WtSE = sd(Wet.weight.g, na.rm = TRUE)/(sqrt(n())))
+test_Wtmean <- summarise(test, WtAvg = mean(Wet.weight.g, na.rm = TRUE), WtSD = sd(Wet.weight.g, na.rm = TRUE), WtSE = sd(Wet.weight.g, na.rm = TRUE)/(sqrt(n())))
 
 #For wet weight data, create a group variable for combining parental history and sw.condition information
 test_Wtmean$group <- paste(test_Wtmean$Parental.history, test_Wtmean$Sw.Condition, sep = "_")

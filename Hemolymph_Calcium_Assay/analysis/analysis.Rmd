@@ -18,6 +18,8 @@ load data
 ca_data <- read_xlsx("../data/20201125/CompiledData.xlsx")
 
 sample_info <- read_xlsx("../data/20201125/CompiledData.xlsx", sheet = 'SampleInfo' )
+
+histology_data <- read_xlsx("../../amb_v_constantlow_brood_data/histology_scoring/HistologyScores_STRIGG.xlsx")
 ```
 
 
@@ -114,21 +116,21 @@ calculate calcium concentration from slope
 # conc. = (corrected sample abs - y intercept / slope) * sample dilution
 for (i in 1:nrow(ca_data_sum_corrected)){
   if(substr(ca_data_sum_corrected$ID[i],1,3)!="STD" & ca_data_sum_corrected$Plate[i] == 1){
-    ca_data_sum_corrected$conc[i] <- (ca_data_sum_corrected$correct_abs[i] + 0.0064 / 0.0999) * 4
+    ca_data_sum_corrected$conc[i] <- ((ca_data_sum_corrected$correct_abs[i] + 0.0064) / 0.0999) * 4
   }
   if(substr(ca_data_sum_corrected$ID[i],1,3)!="STD" & ca_data_sum_corrected$Plate[i] == 2){
-    ca_data_sum_corrected$conc[i] <- (ca_data_sum_corrected$correct_abs[i] + 0.0057 / 0.1067) * 4
+    ca_data_sum_corrected$conc[i] <- ((ca_data_sum_corrected$correct_abs[i] + 0.0057) / 0.1067) * 4
   }
   if(substr(ca_data_sum_corrected$ID[i],1,3)!="STD" & ca_data_sum_corrected$Plate[i] == 3){
-    ca_data_sum_corrected$conc[i] <- (ca_data_sum_corrected$correct_abs[i] + 0.0038 / 0.1057) * 4
+    ca_data_sum_corrected$conc[i] <- ((ca_data_sum_corrected$correct_abs[i] + 0.0038) / 0.1057) * 4
   }
   if(substr(ca_data_sum_corrected$ID[i],1,3)!="STD" & ca_data_sum_corrected$Plate[i] == 4){
-    ca_data_sum_corrected$conc[i] <- (ca_data_sum_corrected$correct_abs[i] + 0.0002 / 0.1051) * 4
+    ca_data_sum_corrected$conc[i] <- ((ca_data_sum_corrected$correct_abs[i] + 0.0002) / 0.1051) * 4
   }
 }
 
 #correct conc for ID 01/23-037L which was a 1:7 dilution (5uL in 35uL total)
-ca_data_sum_corrected[which(ca_data_sum_corrected$ID == "01/23-037L"),"conc"] <- (data.frame(ca_data_sum_corrected[which(ca_data_sum_corrected$ID == "01/23-037L"),"correct_abs"]) + 0.0064 / 0.0999) * 7
+ca_data_sum_corrected[which(ca_data_sum_corrected$ID == "01/23-037L"),"conc"] <- (data.frame((ca_data_sum_corrected[which(ca_data_sum_corrected$ID == "01/23-037L"),"correct_abs"]) + 0.0064) / 0.0999) * 7
 
 ```
 
@@ -222,5 +224,18 @@ run aov for male data
 ```{r}
 m_aov_data <- aov(conc ~ Treatment * days, data = ca_data_sum_corrected_info[which(ca_data_sum_corrected_info$Sex == "M"),])
 summary(m_aov_data)
+
+```
+
+
+add staging data
+```{r}
+#create column for Geoduck.ID
+ca_data_sum_corrected_info$Geoduck.ID <- gsub("L", "", ca_data_sum_corrected_info$Label)
+
+ca_data_sum_corrected_info_stage <- merge(ca_data_sum_corrected_info,histology_data[,c("Geoduck.ID", "Stage")], by = "Geoduck.ID")
+
+
+ggplot(ca_data_sum_corrected_info_stage[which(ca_data_sum_corrected_info_stage$Date == "20190123" |ca_data_sum_corrected_info_stage$Date == "20190221"  ),], aes(x = Stage, y = conc, group = interaction(Sex,Treatment,Stage),color = Treatment)) +  geom_point(size=1) +  theme_bw() + theme(axis.text.x = element_text(angle=90,hjust=0.95,vjust=0.2))  + labs(x = "Stage", y = "Calcium conc. (mg/dL)") + facet_wrap(~Sex + Date, scales = "free_x")
 
 ```

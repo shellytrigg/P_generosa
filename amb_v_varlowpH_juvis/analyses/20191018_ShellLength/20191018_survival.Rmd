@@ -9,6 +9,7 @@ load libraries
 ```{r}
 library(readxl)
 library(ggplot2)
+library(lme4)
 ```
 
 
@@ -66,7 +67,13 @@ colnames(img_counts) <- c("Silo", "live.animals")
 img_counts <- merge(img_counts, meta_data, by = "Silo")
 img_counts$parental_currenttreatment <- paste(img_counts$Parental.history,img_counts$Sw.Condition,sep = "_")
 
+#make parental history column more clear
+img_counts$Parental.history <- ifelse(img_counts$Parental.history == "amb","ambient parents","var.low.pH parents")
 
+#remove tank number from silo column
+img_counts$tank <- ifelse(substr(img_counts$Silo,1,2)=="2.", "2", "3")
+img_counts$Silo <- gsub("2.", "", img_counts$Silo)
+img_counts$Silo <- gsub("3.", "", img_counts$Silo)
 ```
 
 
@@ -76,6 +83,34 @@ plot survival data from image data
 ```{r}
 ggplot(img_counts,aes(x = parental_currenttreatment, y = live.animals, color = parental_currenttreatment)) + geom_jitter(shape = 16, size = 3, position = position_jitter(0.2)) + theme_bw()+ ggtitle("End point survival from image data") + ylab("Number animals alive") + xlab("parental.history_current.condition") + theme(legend.position = "none")
 ```
+
+
+```{r}
+ggplot(img_counts,aes(x = parental_currenttreatment, y = live.animals, fill = parental_currenttreatment, alpha = 0.2)) + geom_boxplot(outlier.shape = NA) + geom_jitter(shape = 16, size = 3, position = position_jitter(0.2)) + theme_bw()+ ggtitle("End point survival from image data") + ylab("Number animals alive") + xlab("parental.history_current.condition") + theme(legend.position = "none") 
+```
+
+```{r}
+jpeg("Counts_facet_boxplots.jpeg", width = 6, height = 3, units = "in", res = 300)
+ggplot(img_counts,aes(x = Sw.Condition, y = live.animals, fill = Sw.Condition, alpha = 0.2)) + geom_boxplot(outlier.shape = NA) + geom_jitter(shape = 16, size = 3, position = position_jitter(0.2)) + theme_bw()+ ggtitle("End point survival") + facet_wrap(~Parental.history) + scale_fill_manual(values = c("#00BFC4","#F8766D"))  + theme(axis.title.x=element_blank(), axis.text.x=element_blank(), axis.ticks.x=element_blank()) + labs(fill = "juvenile pH exposure" , y = "Number animals alive")
+dev.off()
+```
+
+
+
+```{r}
+surv_glmr <- lmerTest::lmer(live.animals ~ Parental.history + Sw.Condition + (1|Silo), data = img_counts)
+
+summary(surv_glmr)
+summary(anova(surv_glmr))
+
+
+summary(surv_glmr)
+TukeyHSD(aov(live.animals ~ Parental.history * Sw.Condition * Silo, data = img_counts))
+
+
+
+```
+
 
 plot survival data from Steven's counts
 ```{r}
